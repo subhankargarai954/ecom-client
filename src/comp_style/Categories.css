@@ -1,0 +1,35 @@
+.Categories {
+    display: flex;
+    flex-direction: column;
+    place-items: center;
+
+    padding: 0px;
+    margin-top: 0px;
+    margin-bottom: 5px;
+    box-sizing: border-box;
+    /* background-color: #410000; */
+}
+
+.Categories-heading {
+    font-size: x-large;
+    width: 100%;
+    padding: 3px;
+    color: #acacac;
+    border: 1px solid rgb(87, 87, 87);
+    box-sizing: border-box;
+    background-color: #353535;
+}
+
+.Categories-body {
+    width: 90%;
+    box-sizing: border-box;
+    /* background-color: #707070; */
+}
+
+.category-item {
+    margin: 2px;
+    display: inline-flex;
+    width: fit-content;
+    box-sizing: border-box;
+    /* background-color: #303030; */
+}

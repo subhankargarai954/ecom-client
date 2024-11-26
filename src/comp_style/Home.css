@@ -1,0 +1,9 @@
+.home {
+    flex-direction: row;
+    place-items: center;
+    padding: 0px;
+    margin-top: 0px;
+    margin-bottom: 5px;
+    box-sizing: border-box;
+    /* background-color: #410000; */
+}

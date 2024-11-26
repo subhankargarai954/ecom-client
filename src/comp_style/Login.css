@@ -1,0 +1,124 @@
+.login {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    /* padding: 10px; */
+    /* justify-content: center; */
+    /* align-content: center; */
+    align-items: center;
+    background-color: black;
+}
+
+.login-heading {
+    font-size: x-large;
+    box-sizing: border-box;
+    padding: 10px;
+    width: 100%;
+    background-color: #383838;
+}
+
+.login-form {
+    display: flex;
+    box-sizing: border-box;
+    width: 100%;
+    align-items: center;
+
+    /* background-color: #fff; */
+}
+
+.login-body {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    /* padding: 10px; */
+    width: 100%;
+    margin-top: 20px;
+    align-items: center;
+    /* background-color: #8b7f7f; */
+}
+
+.login-body-items {
+    display: flex;
+    flex-direction: row;
+    padding: 10px;
+    width: 50%;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    border-radius: 10px;
+    margin-bottom: 10px;
+
+    background-color: #4b4b4b;
+}
+
+.login-item-label {
+    flex: 2;
+    padding: 10px;
+    align-content: center;
+    box-sizing: border-box;
+    font-size: large;
+    color: white;
+    /* font-weight: 600; */
+    /* background-color: #866b6b; */
+}
+
+.login-item-input {
+    flex: 5;
+    padding: 10px;
+    box-sizing: border-box;
+
+    /* background-color: #c9c9c9; */
+}
+
+.login-input-field {
+    height: 30px;
+    width: 80%;
+    border-radius: 20px;
+    padding-left: 20px;
+    color: white;
+    border: none;
+    font-size: large;
+    font-family: Cambria;
+    color: #b4b4b4;
+
+    background-color: #000000;
+}
+
+
+.login-submit {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    border-radius: 20px;
+    background-color: #b12020;
+}
+.login-submit-button {
+    padding: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+    cursor: pointer;
+    border-radius: 20px;
+    border: none;
+    color: white;
+
+    background-color: #0047b3;
+}
+
+.login-submit-button:hover {
+    background-color: #2440bbd0;
+}
+
+span {
+    color: red;
+    vertical-align: super;
+}
+
+.login-error-message {
+    color: red;
+    font-size: medium;
+    /* background-color: #5f2f2f; */
+}
+
+.login-success-message {
+    color: rgb(0, 255, 0);
+    font-size: medium;
+}

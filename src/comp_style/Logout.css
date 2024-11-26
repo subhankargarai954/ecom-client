@@ -1,0 +1,29 @@
+.logout {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 400px;
+    font-size: x-large;
+
+    /* background-color: #000000; */
+}
+.logout-inner {
+    padding: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: 20px;
+
+    /* background-color: #646464; */
+}
+.logout-redirect {
+    padding: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: 20px;
+    margin-top: 20px;
+    font-size: medium;
+    color: yellow;
+
+    /* background-color: #616161; */
+}
