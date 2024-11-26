@@ -8,7 +8,7 @@ const CartContext = createContext();
 const useCart = () => useContext(CartContext);
 
 const CartProvider = ({ children }) => {
-    const { refresh, userLogged } = useAuth();
+    const { refresh } = useAuth();
 
     const [cartItems, setCartItems] = useState([]);
     const [totalProducts, setTotalProducts] = useState();
@@ -83,22 +83,22 @@ const CartProvider = ({ children }) => {
         setTotalPrice(totalSum());
     }, [cartItems]);
 
-    const printCartItems = () => {
-        console.log(`printCartItems() `);
-        cartItems
-            ? cartItems.map((item, index) => {
-                  //   console.log(`___________________________`);
-                  console.log(`item index : ${index}`);
+    // const printCartItems = () => {
+    //     console.log(`printCartItems() `);
+    //     cartItems
+    //         ? cartItems.map((item, index) => {
+    //               //   console.log(`___________________________`);
+    //               console.log(`item index : ${index}`);
 
-                  console.log(`product id : ${item.product.id}`);
-                  console.log(`product quantity : ${item.quantity}`);
-                  console.log(`total price : ${totalPrice}`);
-                  console.log(`total products : ${totalProducts}`);
-                  console.log(`\n`);
-              })
-            : console.log(`no items in cart`);
-        console.log(`printCartItems() -------------`);
-    };
+    //               console.log(`product id : ${item.product.id}`);
+    //               console.log(`product quantity : ${item.quantity}`);
+    //               console.log(`total price : ${totalPrice}`);
+    //               console.log(`total products : ${totalProducts}`);
+    //               console.log(`\n`);
+    //           })
+    //         : console.log(`no items in cart`);
+    //     console.log(`printCartItems() -------------`);
+    // };
 
     const addToCart = async (productDetail, prodCount) => {
         try {
@@ -109,7 +109,7 @@ const CartProvider = ({ children }) => {
                 { headers: { Authorization: token ? token : null } }
             );
 
-            // if (response.data)
+            console.dir(response.data);
             getCartItems();
         } catch (error) {
             console.log(error);
@@ -148,7 +148,7 @@ const CartProvider = ({ children }) => {
                 { productId: productDetail.id },
                 { headers: { Authorization: token ? token : null } }
             );
-            // if (response.data)
+            console.dir(response.data);
             getCartItems();
         } catch (error) {
             console.log(error);
@@ -169,7 +169,7 @@ const CartProvider = ({ children }) => {
                 { headers: { Authorization: token ? token : null } }
             );
 
-            // if (response.data)
+            console.dir(response.data);
             getCartItems();
         } catch (error) {
             console.log(error);
