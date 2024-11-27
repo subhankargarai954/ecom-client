@@ -29,17 +29,19 @@ function Categories() {
         <div className="Categories">
             <div className="Categories-heading">All Categories</div>
             <div className="Categories-body">
-                {productsCategory.map((product) => {
-                    return (
-                        <div className="category-item" key={product.id}>
-                            <Category
-                                name={product.name}
-                                images={product.images}
-                                categoryId={product.id}
-                            />
-                        </div>
-                    );
-                })}
+                {productsCategory
+                    ? productsCategory.map((product) => {
+                          return (
+                              <div className="category-item" key={product.id}>
+                                  <Category
+                                      name={product.name}
+                                      images={product.images}
+                                      categoryId={product.id}
+                                  />
+                              </div>
+                          );
+                      })
+                    : null}
             </div>
         </div>
     );
