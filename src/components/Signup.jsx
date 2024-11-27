@@ -5,6 +5,8 @@ import "../comp_style/Signup.css";
 import { useNavigate } from "react-router-dom";
 
 function Signup() {
+    const BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
@@ -42,15 +44,12 @@ function Signup() {
         setErrorMessage("");
 
         try {
-            const response = await axios.post(
-                `http://localhost:5000/api/auth/signup`,
-                {
-                    name: name,
-                    phone: phone,
-                    password: password,
-                    address: address,
-                }
-            );
+            const response = await axios.post(`${BASE_URL}/api/auth/signup`, {
+                name: name,
+                phone: phone,
+                password: password,
+                address: address,
+            });
             console.dir(response.data, { depth: null });
 
             const token = response.data.token;

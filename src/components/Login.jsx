@@ -9,6 +9,7 @@ import { useAuth } from "../context/AuthContext";
 import { useUrlHistory } from "../context/UrlHistoryContext";
 
 function Login() {
+    const BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState();
@@ -32,10 +33,10 @@ function Login() {
         setErrorMessage("");
 
         try {
-            const response = await axios.post(
-                `http://localhost:5000/api/auth/login`,
-                { phone: phone, password: password }
-            );
+            const response = await axios.post(`${BASE_URL}/api/auth/login`, {
+                phone: phone,
+                password: password,
+            });
 
             response.data.error &&
                 console.log(`response.error: ${response.data.error}`);
@@ -44,7 +45,7 @@ function Login() {
                 localStorage.setItem("token", response.data.token);
                 setSuccessMessage("Login Successful");
                 console.log(`userLogged: ${userLogged}`);
- 
+
                 setTimeout(() => {
                     setSuccessMessage("");
                     updateUserLog(true);

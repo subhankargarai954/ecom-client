@@ -9,6 +9,8 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
 function Product() {
+    const BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+
     const { id } = useParams();
     const { addToCart } = useCart();
     const { userLogged } = useAuth();
@@ -31,7 +33,7 @@ function Product() {
         const getProductDetails = async () => {
             try {
                 const response = await axios.get(
-                    `http://localhost:5000/api/products/product/${id}`
+                    `${BASE_URL}/api/products/product/${id}`
                 );
                 setProductDetail(response.data);
                 setSelectedImageUrl(response.data.image);
@@ -48,7 +50,7 @@ function Product() {
         const getProductImages = async () => {
             try {
                 const response = await axios.get(
-                    `http://localhost:5000/api/products/product/images/${id}`
+                    `${BASE_URL}/api/products/product/images/${id}`
                 );
 
                 const images = response.data;
@@ -140,8 +142,6 @@ function Product() {
                             </div>
                         )}
                     </div>
-
-                    
 
                     <div className="product-detail-button buy-button">
                         Buy Now

@@ -8,6 +8,8 @@ const CartContext = createContext();
 const useCart = () => useContext(CartContext);
 
 const CartProvider = ({ children }) => {
+    const BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+
     const { refresh } = useAuth();
 
     const [cartItems, setCartItems] = useState([]);
@@ -19,10 +21,9 @@ const CartProvider = ({ children }) => {
 
         try {
             const token = localStorage.getItem("token");
-            const response = await axios.get(
-                `http://localhost:5000/api/cart/`,
-                { headers: { Authorization: token ? `${token}` : null } }
-            );
+            const response = await axios.get(`${BASE_URL}/api/cart/`, {
+                headers: { Authorization: token ? `${token}` : null },
+            });
             console.dir(response.data, { depth: null });
 
             response.data.error && console.log(`${response.data.error}`);
@@ -38,7 +39,7 @@ const CartProvider = ({ children }) => {
                             let count = item.count;
 
                             const res = await axios.get(
-                                `http://localhost:5000/api/products/product/${item.product_id}`
+                                `${BASE_URL}/api/products/product/${item.product_id}`
                             );
 
                             if (res.data) productDetail = res.data;
@@ -104,7 +105,7 @@ const CartProvider = ({ children }) => {
         try {
             const token = localStorage.getItem("token");
             const response = await axios.post(
-                `http://localhost:5000/api/cart/addToCart`,
+                `${BASE_URL}/api/cart/addToCart`,
                 { productId: productDetail.id, count: prodCount },
                 { headers: { Authorization: token ? token : null } }
             );
@@ -144,7 +145,7 @@ const CartProvider = ({ children }) => {
         try {
             const token = localStorage.getItem("token");
             const response = await axios.post(
-                `http://localhost:5000/api/cart/removeFromCart`,
+                `${BASE_URL}/api/cart/removeFromCart`,
                 { productId: productDetail.id },
                 { headers: { Authorization: token ? token : null } }
             );
@@ -164,7 +165,7 @@ const CartProvider = ({ children }) => {
         try {
             const token = localStorage.getItem("token");
             const response = await axios.post(
-                `http://localhost:5000/api/cart/increaseCartItem`,
+                `${BASE_URL}/api/cart/increaseCartItem`,
                 { productId: productDetail.id },
                 { headers: { Authorization: token ? token : null } }
             );
@@ -182,7 +183,7 @@ const CartProvider = ({ children }) => {
         try {
             const token = localStorage.getItem("token");
             const response = await axios.post(
-                `http://localhost:5000/api/cart/decreaseCartItem`,
+                `${BASE_URL}/api/cart/decreaseCartItem`,
                 { productId: productDetail.id },
                 { headers: { Authorization: token ? token : null } }
             );

@@ -11,6 +11,8 @@ import "../comp_style/Products.css";
 import Cart from "./Cart";
 
 function Products() {
+    const BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+
     const { id } = useParams();
     const { addToCart } = useCart();
     const { userLogged } = useAuth();
@@ -22,7 +24,7 @@ function Products() {
         const getAllProducts = async () => {
             try {
                 let response = await axios.get(
-                    `http://localhost:5000/api/products/categories/${id}`
+                    `${BASE_URL}/api/products/categories/${id}`
                 );
 
                 // console.log("response.data", response.data);
@@ -37,7 +39,7 @@ function Products() {
         const getCategoryName = async () => {
             try {
                 let response = await axios.get(
-                    `http://localhost:5000/api/products/categoryname/${id}`
+                    `${BASE_URL}/api/products/categoryname/${id}`
                 );
                 // console.log(response.data);
                 setCategoryName(response.data[0]);

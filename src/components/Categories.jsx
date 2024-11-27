@@ -6,13 +6,12 @@ import Category from "./Category";
 import "../comp_style/Categories.css";
 
 function Categories() {
+    const BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     const [productsCategory, setProductsCategory] = useState([]);
 
     const fetchCategories = async () => {
         try {
-            let res = await axios.get(
-                "http://localhost:5000/api/products/categories"
-            );
+            let res = await axios.get(`${BASE_URL}/api/products/categories`);
 
             res = res.data;
             // console.log(res);
