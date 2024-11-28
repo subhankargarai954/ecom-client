@@ -55,8 +55,13 @@ function Signup() {
             const token = response.data.token;
 
             if (token) {
+                console.log(token);
                 localStorage.setItem("token", token);
                 setSuccessMessage(response.data.message);
+                setTimeout(() => {
+                        setSuccessMessage("");
+                        navigate("/Login");
+                }, 3000);
             } else {
                 setErrorMessage(`${response.data.error}`);
             }
@@ -64,13 +69,6 @@ function Signup() {
             console.log(`error during signup : ${error}`);
             setErrorMessage(error);
         }
-
-        setTimeout(() => {
-            if (successMessage) {
-                setSuccessMessage("");
-                navigate("/Login");
-            }
-        }, 3000);
     };
 
     //     const phoneNo = e.target.value;
