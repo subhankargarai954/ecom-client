@@ -43,7 +43,9 @@ function Products() {
                 );
                 // console.log(response.data);
                 setCategoryName(response.data[0]);
-            } catch (error) {}
+            } catch (error) {
+                console.log(error);
+            }
         };
 
         getAllProducts();
