@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useLocation } from "react-router-dom";
+// import { useLocation } from "react-router-dom";
 
 import "../comp_style/Login.css";
 
@@ -15,7 +15,7 @@ function Login() {
     const [errorMessage, setErrorMessage] = useState();
     const [successMessage, setSuccessMessage] = useState();
 
-    const location = useLocation();
+    // const location = useLocation();
     const navigate = useNavigate();
     const { userLogged, updateUserLog } = useAuth();
     const { urlHist } = useUrlHistory();
