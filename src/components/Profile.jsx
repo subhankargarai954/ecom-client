@@ -1,7 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 
 function Profile() {
-    return <div>Profile</div>;
+    // const [phoneNo, setPhoneNo] = useState();
+    // const [userName, setUserName] = useState();
+    // const []
+    return (
+        <div>
+            <h1>Profile</h1>
+        </div>
+    );
 }
 
 export default Profile;
