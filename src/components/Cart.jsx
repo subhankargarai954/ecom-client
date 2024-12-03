@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useCart } from "../context/CartContext.jsx";
 
 import "../comp_style/Cart.css";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext.jsx";
+// import { useAuth } from "../context/AuthContext.jsx";
 
 function Cart() {
     const {
@@ -15,8 +15,8 @@ function Cart() {
         decreaseCartItem,
         removeFromCart,
     } = useCart();
-    const { refresh, userLogged } = useAuth();
 
+    // const { refresh, userLogged } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -35,7 +35,15 @@ function Cart() {
                         cartItems.map((item, index) => (
                             <div className="cart-body-item" key={index}>
                                 <div className="cart-item-image">
-                                    <img src={item.product.image} alt="" />
+                                    <img
+                                        src={item.product.image}
+                                        alt="product-image"
+                                        onClick={() =>
+                                            navigate(
+                                                `/product/${item.product.id}`
+                                            )
+                                        }
+                                    />
                                 </div>
                                 <div className="cart-item-details">
                                     <div className="cart-item-name cart-item-field">
@@ -74,7 +82,7 @@ function Cart() {
                                         </div>
                                     </div>
                                     <div className="cart-item-total-price cart-item-field">
-                                        Total Price: <sup> ₹ </sup>
+                                        Total Price: <br /> <sup> ₹ </sup>
                                         {item.product.price * item.quantity}
                                     </div>
                                 </div>

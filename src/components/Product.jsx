@@ -74,7 +74,7 @@ function Product() {
         <div className="product">
             <div className="product-heading">
                 {/* {productDetail.name} */}
-                <div className="product-heading-nav-button">Back</div>
+                {/* <div className="product-heading-nav-button">Back</div> */}
             </div>
 
             <div className="product-card">
