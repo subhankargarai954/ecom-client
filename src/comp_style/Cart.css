@@ -45,7 +45,7 @@
     box-sizing: border-box;
     border-radius: 5px;
     padding: 5px;
-    height: 200px;
+    height: 150px;
     background-color: #363636;
 }
 .cart-item-image {
@@ -160,7 +160,7 @@ sup {
     color: black;
     text-shadow: 2px 2px 0px yellow, -2px -2px 2px yellow, -2px 2px 0px yellow,
         2px -2px 0px yellow;
-    background: #363636;
+    background: #292929;
 }
 /* .cart-body-sum >  */
 .cart-body-sum > sup {

@@ -82,7 +82,7 @@ function Cart() {
                                         </div>
                                     </div>
                                     <div className="cart-item-total-price cart-item-field">
-                                        Total Price: <sup> ₹ </sup>
+                                        Total Price: <br /> <sup> ₹ </sup>
                                         {item.product.price * item.quantity}
                                     </div>
                                 </div>
