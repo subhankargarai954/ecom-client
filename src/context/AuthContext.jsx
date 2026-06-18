@@ -49,11 +49,11 @@ const AuthProvider = ({ children }) => {
             setUserlogged(true);
             checkTokenValidity();
 
-            const intervalId = setInterval(checkTokenValidity, 5000); // check every minute
-            return () => clearInterval(intervalId); // clean interval
+            const intervalId = setInterval(checkTokenValidity, 5000);
+            return () => clearInterval(intervalId);
+        } else {
+            setUserlogged(false);
         }
-        if (localMemoryToken) setUserlogged(true);
-        else setUserlogged(false);
     }, [localMemoryToken]);
 
     useEffect(() => {

@@ -66,7 +66,7 @@ function Login() {
         <div className="login">
             <div className="login-heading">Login</div>
 
-            <form className="login-form">
+            <form className="login-form" onSubmit={handleSubmit}>
                 <div className="login-body">
                     <div className="login-body-items">
                         <div className="login-item-label">
@@ -113,7 +113,7 @@ function Login() {
                     <div className="login-submit">
                         <button
                             className="login-submit-button"
-                            onClick={handleSubmit}
+                            type="submit"
                         >
                             Login
                         </button>
