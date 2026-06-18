@@ -35,7 +35,7 @@ function App() {
                     ) : (
                         <NavigationBar
                             list1={["Home", "Category"]}
-                            list2={["Login", "Signup", "Admin "]}
+                            list2={["Login", "Signup", "Admin"]}
                         />
                     )}
                     <Routes>

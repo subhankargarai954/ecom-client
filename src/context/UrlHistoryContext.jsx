@@ -16,7 +16,7 @@ const useUrlHistory = () => useContext(UrlHistoryContext);
 const UrlHistoryProvider = ({ children }) => {
     const location = useLocation();
 
-    const [urlHist, setUrlHist] = useState(location.pathname);
+    const [urlHist, setUrlHist] = useState([location.pathname]);
 
     // const lastPathName = useRef(location.pathname);
 

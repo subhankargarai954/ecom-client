@@ -11,7 +11,7 @@ function Signup() {
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
     const [address, setAddress] = useState("");
-    const [errorMessage, setErrorMessage] = useState();
+    const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
 
     const navigate = useNavigate();
@@ -151,7 +151,7 @@ function Signup() {
                 )}
 
                 <div className="signup-submit">
-                    <button className="submit-button" onClick={handleSubmit}>
+                    <button className="submit-button" type="submit">
                         Signup
                     </button>
                 </div>
