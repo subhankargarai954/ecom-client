@@ -1,127 +1,51 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-// import { useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../api";
 
-import "../comp_style/Login.css";
-
-import { useAuth } from "../context/AuthContext";
-import { useUrlHistory } from "../context/UrlHistoryContext";
-
-function Login() {
-    const BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-    const [phone, setPhone] = useState("");
-    const [password, setPassword] = useState("");
-    const [errorMessage, setErrorMessage] = useState();
-    const [successMessage, setSuccessMessage] = useState();
-
-    // const location = useLocation();
+export default function Login() {
+    const [form, setForm] = useState({ phone: "", password: "" });
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const { userLogged, updateUserLog } = useAuth();
-    const { urlHist } = useUrlHistory();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        const phoneRegex = /^[6-9][0-9]{9}$/;
-        if (!phoneRegex.test(phone)) {
-            console.log(`${phone}`);
-            setErrorMessage(`Provide valid 10 digit Indian phone no.`);
-            return;
-        }
-
-        setErrorMessage("");
-
+        setError(""); setLoading(true);
         try {
-            const response = await axios.post(`${BASE_URL}/api/auth/login`, {
-                phone: phone,
-                password: password,
-            });
-
-            response.data.error &&
-                console.log(`response.error: ${response.data.error}`);
-
-            if (response.data.token) {
-                localStorage.setItem("token", response.data.token);
-                setSuccessMessage("Login Successful");
-                console.log(`userLogged: ${userLogged}`);
-
-                setTimeout(() => {
-                    setSuccessMessage("");
-                    updateUserLog(true);
-                    navigate(
-                        urlHist[1] === "/Login" || urlHist[1] === "/Logout"
-                            ? "/"
-                            : `${urlHist[1]}`
-                    );
-                    console.log(`lgin-s userLogged: ${userLogged}`);
-                }, 2000);
-            } else setErrorMessage(`${response.data.error}`);
-        } catch (error) {
-            setErrorMessage(`Login Unsuccessful: ${error}`);
-        }
+            const { data } = await api.post("/api/auth/login", form);
+            localStorage.setItem("customerToken", data.token);
+            localStorage.setItem("customerUser", JSON.stringify(data.user));
+            navigate("/");
+        } catch (err) {
+            setError(err.response?.data?.error || "Login failed.");
+        } finally { setLoading(false); }
     };
 
     return (
-        <div className="login">
-            <div className="login-heading">Login</div>
-
-            <form className="login-form" onSubmit={handleSubmit}>
-                <div className="login-body">
-                    <div className="login-body-items">
-                        <div className="login-item-label">
-                            Phone<span>*</span>
-                        </div>
-                        <div className="login-item-input">
-                            <input
-                                type="tel"
-                                className="login-input-field login-telephone"
-                                placeholder="10 digits only"
-                                pattern="[6-9][0-9]{9}"
-                                maxLength={10}
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
-                            />
-                        </div>
+        <div className="auth-page">
+            <div className="auth-box">
+                <h1>Welcome back 👋</h1>
+                <p>Sign in to your account</p>
+                {error && <div className="alert alert-error">{error}</div>}
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" placeholder="10-digit phone" value={form.phone}
+                            onChange={(e) => setForm({ ...form, phone: e.target.value })} required />
                     </div>
-
-                    <div className="login-body-items">
-                        <div className="login-item-label">
-                            Password<span>*</span>
-                        </div>
-                        <div className="login-item-input">
-                            <input
-                                type="password"
-                                className="login-input-field login-password"
-                                placeholder="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                        </div>
+                    <div className="form-group">
+                        <label>Password</label>
+                        <input type="password" placeholder="Password" value={form.password}
+                            onChange={(e) => setForm({ ...form, password: e.target.value })} required />
                     </div>
-
-                    {errorMessage ? (
-                        <div className="login-error-message">
-                            {errorMessage}
-                        </div>
-                    ) : (
-                        <div className="login-success-message">
-                            {successMessage}
-                        </div>
-                    )}
-
-                    <div className="login-submit">
-                        <button
-                            className="login-submit-button"
-                            type="submit"
-                        >
-                            Login
-                        </button>
-                    </div>
-                </div>
-            </form>
+                    <button type="submit" className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }} disabled={loading}>
+                        {loading ? "Signing in…" : "Sign In"}
+                    </button>
+                </form>
+                <p style={{ textAlign: "center", marginTop: 16, fontSize: 14, color: "#636e72" }}>
+                    Don't have an account? <Link to="/signup" style={{ color: "#0984e3" }}>Sign Up</Link>
+                </p>
+            </div>
         </div>
     );
 }
-
-export default Login;

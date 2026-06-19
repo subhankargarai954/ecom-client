@@ -1,163 +1,66 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../api";
 
-import "../comp_style/Signup.css";
-import { useNavigate } from "react-router-dom";
-
-function Signup() {
-    const BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-
-    const [name, setName] = useState("");
-    const [phone, setPhone] = useState("");
-    const [password, setPassword] = useState("");
-    const [address, setAddress] = useState("");
-    const [errorMessage, setErrorMessage] = useState("");
-    const [successMessage, setSuccessMessage] = useState("");
-
+export default function Signup() {
+    const [form, setForm] = useState({ name: "", phone: "", email: "", password: "", address: "" });
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        // Name validation: At least two words
-        const nameRegex = /^[a-zA-Z]+( [a-zA-Z]+)+$/;
-        if (!nameRegex.test(name)) {
-            setErrorMessage("Name must contain at least two words.");
-            return;
-        }
-
-        // Phone validation: 10 digits starting with [6-9]
-        const phoneRegex = /^[6-9][0-9]{9}$/;
-        if (!phoneRegex.test(phone)) {
-            setErrorMessage(
-                "Phone number must be valid Indian 10 digits number."
-            );
-            return;
-        }
-
-        // Password validation: At least 4 characters
-        if (password.length < 4) {
-            setErrorMessage("Password must be at least 4 characters long.");
-            return;
-        }
-
-        setErrorMessage("");
-
+        setError(""); setLoading(true);
         try {
-            const response = await axios.post(`${BASE_URL}/api/auth/signup`, {
-                name: name,
-                phone: phone,
-                password: password,
-                address: address,
-            });
-            console.dir(response.data, { depth: null });
-
-            const token = response.data.token;
-
-            if (token) {
-                console.log(token);
-                localStorage.setItem("token", token);
-                setSuccessMessage(response.data.message);
-                setTimeout(() => {
-                        setSuccessMessage("");
-                        navigate("/Login");
-                }, 3000);
-            } else {
-                setErrorMessage(`${response.data.error}`);
-            }
-        } catch (error) {
-            console.log(`error during signup : ${error}`);
-            setErrorMessage(error);
-        }
+            const { data } = await api.post("/api/auth/signup", form);
+            localStorage.setItem("customerToken", data.token);
+            localStorage.setItem("customerUser", JSON.stringify(data.user));
+            navigate("/");
+        } catch (err) {
+            setError(err.response?.data?.error || "Signup failed.");
+        } finally { setLoading(false); }
     };
 
-    //     const phoneNo = e.target.value;
-    //     phoneNo.length === 10 ? setPhone(`${phoneNo}`) : setPhone(``);
-    //     console.log(`${phone}`);
-    // };
-
     return (
-        <div className="signup">
-            <div className="signup-heading">Signup</div>
-            <form onSubmit={handleSubmit} className="signup-form">
-                <div className="signup-entries">
-                    <div className="signup-labels">
-                        Name<span>*</span>
+        <div className="auth-page">
+            <div className="auth-box">
+                <h1>Create Account</h1>
+                <p>Sign up to start shopping</p>
+                {error && <div className="alert alert-error">{error}</div>}
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label>Full Name *</label>
+                        <input placeholder="Your name" value={form.name}
+                            onChange={(e) => setForm({ ...form, name: e.target.value })} required />
                     </div>
-                    <div className="signup-fields name">
-                        <input
-                            type="text"
-                            className="ip-field text"
-                            placeholder="Full Name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            required
-                        />
+                    <div className="form-group">
+                        <label>Phone Number *</label>
+                        <input placeholder="10-digit phone" value={form.phone}
+                            onChange={(e) => setForm({ ...form, phone: e.target.value })} required />
                     </div>
-                </div>
-
-                <div className="signup-entries">
-                    <div className="signup-labels">
-                        Phone<span>*</span>
+                    <div className="form-group">
+                        <label>Email (optional)</label>
+                        <input type="email" placeholder="you@example.com" value={form.email}
+                            onChange={(e) => setForm({ ...form, email: e.target.value })} />
                     </div>
-                    <div className="signup-fields phone">
-                        <input
-                            type="tel"
-                            className="ip-field text"
-                            placeholder="only 10 digits"
-                            pattern="[6-9][0-9]{9}"
-                            maxLength={10}
-                            onChange={(e) => setPhone(e.target.value)}
-                            required
-                        />
+                    <div className="form-group">
+                        <label>Password *</label>
+                        <input type="password" placeholder="Choose a password" value={form.password}
+                            onChange={(e) => setForm({ ...form, password: e.target.value })} required />
                     </div>
-                </div>
-
-                <div className="signup-entries">
-                    <div className="signup-labels">
-                        Password<span>*</span>
+                    <div className="form-group">
+                        <label>Address (optional)</label>
+                        <input placeholder="Your address" value={form.address}
+                            onChange={(e) => setForm({ ...form, address: e.target.value })} />
                     </div>
-                    <div className="signup-fields password">
-                        <input
-                            type="password"
-                            className="ip-field password"
-                            placeholder="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
-                </div>
-
-                <div className="signup-entries">
-                    <div className="signup-labels"> Address </div>
-                    <div className="signup-fields address">
-                        <input
-                            type="textarea"
-                            className="ip-field textarea"
-                            placeholder="village, locality"
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                        />
-                    </div>
-                </div>
-
-                {errorMessage ? (
-                    <div className="signup-error-message">{errorMessage}</div>
-                ) : (
-                    <div className="signup-success-message">
-                        {successMessage}
-                    </div>
-                )}
-
-                <div className="signup-submit">
-                    <button className="submit-button" type="submit">
-                        Signup
+                    <button type="submit" className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }} disabled={loading}>
+                        {loading ? "Creating account…" : "Create Account"}
                     </button>
-                </div>
-            </form>
+                </form>
+                <p style={{ textAlign: "center", marginTop: 16, fontSize: 14, color: "#636e72" }}>
+                    Already have an account? <Link to="/login" style={{ color: "#0984e3" }}>Sign In</Link>
+                </p>
+            </div>
         </div>
     );
 }
-
-export default Signup;

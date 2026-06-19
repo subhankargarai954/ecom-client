@@ -1,137 +1,122 @@
-// Products.jsx
-
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import axios from "axios";
+import { Link, useSearchParams } from "react-router-dom";
+import api from "../api";
 
-import { useCart } from "../context/CartContext";
-import { useAuth } from "../context/AuthContext";
+export default function Products() {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [total, setTotal] = useState(0);
+    const [loading, setLoading] = useState(true);
 
-import "../comp_style/Products.css";
-import Cart from "./Cart";
-
-function Products() {
-    const BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-
-    const { id } = useParams();
-    const { addToCart } = useCart();
-    const { userLogged } = useAuth();
-
-    const [allProducts, setAllProducts] = useState([]);
-    const [categoryName, setCategoryName] = useState({});
+    const search = searchParams.get("search") || "";
+    const category_id = searchParams.get("category_id") || "";
+    const page = parseInt(searchParams.get("page") || "1");
 
     useEffect(() => {
-        const getAllProducts = async () => {
-            try {
-                let response = await axios.get(
-                    `${BASE_URL}/api/products/categories/${id}`
-                );
+        api.get("/api/products/categories").then((r) => setCategories(r.data.categories || []));
+    }, []);
 
-                // console.log("response.data", response.data);
+    useEffect(() => {
+        setLoading(true);
+        const params = new URLSearchParams({ page, limit: 20 });
+        if (search) params.set("search", search);
+        if (category_id) params.set("category_id", category_id);
 
-                setAllProducts(response.data);
-            } catch (error) {
-                console.log(
-                    `problem retrieving allProduct details from backend : ${error}`
-                );
-            }
-        };
-        const getCategoryName = async () => {
-            try {
-                let response = await axios.get(
-                    `${BASE_URL}/api/products/categoryname/${id}`
-                );
-                // console.log(response.data);
-                setCategoryName(response.data[0]);
-            } catch (error) {
-                console.log(error);
-            }
-        };
+        api.get(`/api/products?${params}`)
+            .then((r) => { setProducts(r.data.products || []); setTotal(r.data.total || 0); })
+            .catch(console.error)
+            .finally(() => setLoading(false));
+    }, [search, category_id, page]);
 
-        getAllProducts();
-        getCategoryName();
-        // console.log(`end of useEffect, getAllProducts is executed`);
-    }, [id]);
+    const setParam = (key, val) => {
+        const p = new URLSearchParams(searchParams);
+        if (val) p.set(key, val); else p.delete(key);
+        p.delete("page");
+        setSearchParams(p);
+    };
 
     return (
-        <div className="products">
-            <div className="products-heading">
-                <Link to={"/"}>
-                    <div className="products-heading-nav-button">
-                        All Category
-                    </div>
-                </Link>
+        <div>
+            <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 20 }}>
+                {category_id ? (categories.find((c) => c.id == category_id)?.name || "Products") : "All Products"}
+            </h1>
 
-                <div className="products-category-title">
-                    Category: {categoryName.name}
+            <div className="search-bar">
+                <input
+                    placeholder="Search products…"
+                    value={search}
+                    onChange={(e) => setParam("search", e.target.value)}
+                />
+                <select value={category_id} onChange={(e) => setParam("category_id", e.target.value)}>
+                    <option value="">All Categories</option>
+                    {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+            </div>
+
+            {loading ? (
+                <div style={{ textAlign: "center", padding: 48, color: "#636e72" }}>Loading products…</div>
+            ) : products.length === 0 ? (
+                <div className="empty-state">
+                    <div className="icon">🔍</div>
+                    <h2>No products found</h2>
+                    <p>Try adjusting your search or filter.</p>
                 </div>
-
-                <Link to={"/"}>
-                    <div className="products-heading-nav-button">Link</div>
-                </Link>
-            </div>
-            <div className="products-list">
-                {allProducts.length > 0 ? (
-                    allProducts.map((product) => (
-                        <div className="products-card" key={product.id}>
-                            <Link to={`/product/${product.id}`}>
-                                <img
-                                    className="products-image"
-                                    src={product.image}
-                                    alt={product.name}
-                                />
-                            </Link>
-                            <div className="products-info">
-                                <div className="products-name">
-                                    {product.name}
-                                </div>
-
-                                <div className="products-price-curr">
-                                    Price: <sup>₹</sup>
-                                    <span>{product.price} </span>
-                                </div>
-                                <div className="products-price-next">
-                                    Next Price: <sup> ₹</sup>
-                                    <span>
-                                        {product.price + product.price * 0.1}
-                                    </span>
-                                </div>
-
-                                <div className="products-add-to-cart-div">
-                                    {!userLogged ? (
-                                        <Link to={`/Login`}>
-                                            <div
-                                                className="products-addtocart-button"
-                                                onClick={() =>
-                                                    addToCart(product, 1)
-                                                }
-                                            >
-                                                Add to Cart
-                                            </div>
-                                        </Link>
-                                    ) : (
-                                        <div
-                                            className="products-addtocart-button"
-                                            onClick={() =>
-                                                addToCart(product, 1)
-                                            }
-                                        >
-                                            Add to Cart
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
+            ) : (
+                <>
+                    <div style={{ color: "#636e72", fontSize: 13, marginBottom: 16 }}>{total} product(s)</div>
+                    <div className="products-grid">
+                        {products.map((p) => <ProductCard key={p.id} product={p} />)}
+                    </div>
+                    {total > 20 && (
+                        <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 20 }}>
+                            {page > 1 && (
+                                <button className="btn btn-outline btn-sm" onClick={() => setParam("page", page - 1)}>‹ Prev</button>
+                            )}
+                            <span style={{ padding: "6px 12px", fontSize: 13, color: "#636e72" }}>Page {page}</span>
+                            {page * 20 < total && (
+                                <button className="btn btn-outline btn-sm" onClick={() => setParam("page", page + 1)}>Next ›</button>
+                            )}
                         </div>
-                    ))
-                ) : (
-                    <>
-                        <div className="loading"> Loading products... </div>
-                    </>
-                )}
-            </div>
-            {userLogged && <Cart />}
+                    )}
+                </>
+            )}
         </div>
     );
 }
 
-export default Products;
+function ProductCard({ product }) {
+    const cover = product.images?.find((i) => i.is_cover) || product.images?.[0];
+    const hasVariants = product.variants?.length > 0;
+    const totalQty = hasVariants
+        ? product.variants.reduce((s, v) => s + (v.available_quantity || 0), 0)
+        : (product.available_quantity || 0);
+    const inStock = totalQty > 0;
+    const effectivePrice = parseFloat(product.base_price) * (1 - parseFloat(product.discount_percent || 0) / 100);
+
+    return (
+        <Link to={`/products/${product.id}`} className="product-card" style={{ position: "relative" }}>
+            {parseFloat(product.discount_percent) > 0 && (
+                <div className="product-card-badge">-{product.discount_percent}%</div>
+            )}
+            {cover ? (
+                <img src={cover.image_url} alt={product.name} className="product-card-image" />
+            ) : (
+                <div className="product-card-img-placeholder">📦</div>
+            )}
+            <div className="product-card-body">
+                <div className="product-card-category">{product.category?.name || ""}</div>
+                <div className="product-card-name">{product.name}</div>
+                <div className="product-card-price">
+                    ₹{effectivePrice.toFixed(2)}
+                    {parseFloat(product.discount_percent) > 0 && (
+                        <span className="original">₹{parseFloat(product.base_price).toFixed(2)}</span>
+                    )}
+                </div>
+                <div className={`product-card-stock ${inStock ? "in" : "out"}`}>
+                    {inStock ? `✓ In Stock (${totalQty})` : "⚡ Pre-order Available"}
+                </div>
+            </div>
+        </Link>
+    );
+}
