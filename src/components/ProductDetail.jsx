@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import api from "../api";
+import { localized } from "../i18n/localize";
 
 export default function ProductDetail() {
+    const { t, i18n } = useTranslation();
     const { id } = useParams();
     const navigate = useNavigate();
     const [product, setProduct] = useState(null);
@@ -28,8 +31,8 @@ export default function ProductDetail() {
             .finally(() => setLoading(false));
     }, [id]);
 
-    if (loading) return <div style={{ padding: 48, color: "#636e72" }}>Loading product…</div>;
-    if (!product) return <div className="alert alert-error">Product not found.</div>;
+    if (loading) return <div style={{ padding: 48, color: "#636e72" }}>{t("products.loading")}</div>;
+    if (!product) return <div className="alert alert-error">{t("products.none_found")}</div>;
 
     const hasVariants = product.variants?.length > 0;
     const currentQty = hasVariants
@@ -53,7 +56,7 @@ export default function ProductDetail() {
                 variant_id: selectedVariant?.id || null,
                 quantity,
             });
-            setAddMsg("✓ Added to cart!");
+            setAddMsg("✓ " + t("product_detail.added"));
             setTimeout(() => setAddMsg(""), 2000);
         } catch (err) {
             setAddMsg(err.response?.data?.error || "Failed to add to cart.");
@@ -67,7 +70,7 @@ export default function ProductDetail() {
     return (
         <div>
             <Link to="/products" style={{ color: "#636e72", textDecoration: "none", fontSize: 13, display: "inline-block", marginBottom: 16 }}>
-                ← Back to Products
+                ← {t("product_detail.back")}
             </Link>
 
             <div className="product-detail">
@@ -105,10 +108,10 @@ export default function ProductDetail() {
                 <div className="product-info">
                     {product.category && (
                         <Link to={`/products?category_id=${product.category.id}`} className="category-tag">
-                            🏷️ {product.category.name}
+                            🏷️ {localized(product.category, "name", i18n.language)}
                         </Link>
                     )}
-                    <h1>{product.name}</h1>
+                    <h1>{localized(product, "name", i18n.language)}</h1>
 
                     <div style={{ margin: "12px 0" }}>
                         <span className="product-price">₹{effectivePrice().toFixed(2)}</span>
@@ -121,20 +124,20 @@ export default function ProductDetail() {
                     </div>
 
                     <div className={`product-stock ${inStock ? "in" : "out"}`}>
-                        {inStock ? `✓ In Stock (${currentQty} available)` : "⚡ Out of stock — Pre-order available"}
+                        {inStock ? `✓ ${t("product_detail.in_stock", { count: currentQty })}` : `⚡ ${t("product_detail.out_of_stock")}`}
                     </div>
 
                     {/* Delivery info */}
                     <div className={`delivery-box ${inStock ? "today" : "preorder"}`}>
                         {inStock
-                            ? `🚀 Ready for pickup today (${today})`
-                            : `📅 Pre-order: tentative delivery by ${tomorrow}. Admin will confirm the exact date.`}
+                            ? `🚀 ${t("product_detail.ready_today", { date: today })}`
+                            : `📅 ${t("product_detail.preorder_info", { date: tomorrow })}`}
                     </div>
 
                     {/* Variant Selector */}
                     {hasVariants && (
                         <div style={{ marginTop: 20 }}>
-                            <div className="variant-label">Select Variant</div>
+                            <div className="variant-label">{t("product_detail.select_variant")}</div>
                             <div className="variant-grid">
                                 {product.variants.filter((v) => v.is_active).map((v) => (
                                     <button
@@ -144,7 +147,7 @@ export default function ProductDetail() {
                                     >
                                         {v.variant_name}
                                         {v.price_override && <span style={{ display: "block", fontSize: 11, color: "inherit" }}>₹{parseFloat(v.price_override).toFixed(2)}</span>}
-                                        {v.available_quantity === 0 && <span style={{ fontSize: 10, display: "block" }}>Out of stock</span>}
+                                        {v.available_quantity === 0 && <span style={{ fontSize: 10, display: "block" }}>{t("product_detail.out_of_stock_short")}</span>}
                                     </button>
                                 ))}
                             </div>
@@ -153,7 +156,7 @@ export default function ProductDetail() {
 
                     {/* Quantity */}
                     <div style={{ marginTop: 16 }}>
-                        <div className="variant-label">Quantity</div>
+                        <div className="variant-label">{t("product_detail.quantity")}</div>
                         <div className="qty-selector">
                             <button onClick={() => setQuantity((q) => Math.max(1, q - 1))}>−</button>
                             <span>{quantity}</span>
@@ -171,24 +174,24 @@ export default function ProductDetail() {
                         <button className="btn btn-primary" onClick={handleAddToCart}
                             style={{ flex: 1 }}
                             disabled={hasVariants && !selectedVariant}>
-                            🛒 Add to Cart
+                            🛒 {t("product_detail.add_to_cart")}
                         </button>
                         <Link to="/cart" className="btn btn-outline" style={{ flex: 1, justifyContent: "center" }}>
-                            View Cart
+                            {t("product_detail.view_cart")}
                         </Link>
                     </div>
 
                     {!inStock && (
                         <p style={{ fontSize: 12, color: "#636e72", marginTop: 12 }}>
-                            💡 You can still place a pre-order. Pay at least 20% advance and we'll notify you with the confirmed delivery date.
+                            💡 {t("product_detail.preorder_hint")}
                         </p>
                     )}
 
                     {/* Description */}
                     {product.description && (
                         <div style={{ marginTop: 24 }}>
-                            <div className="variant-label">Description</div>
-                            <p className="product-desc">{product.description}</p>
+                            <div className="variant-label">{t("product_detail.description")}</div>
+                            <p className="product-desc">{localized(product, "description", i18n.language)}</p>
                         </div>
                     )}
                 </div>

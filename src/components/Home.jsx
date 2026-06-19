@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import api from "../api";
+import { localized } from "../i18n/localize";
 
 export default function Home() {
+    const { t, i18n } = useTranslation();
     const [featured, setFeatured] = useState([]);
     const [categories, setCategories] = useState([]);
 
@@ -15,17 +18,17 @@ export default function Home() {
         <div>
             {/* Hero */}
             <div className="hero">
-                <h1>Quality Products, Fast Delivery</h1>
-                <p>Browse our collection and place orders with just 20% advance payment.</p>
+                <h1>{t("home.hero_title")}</h1>
+                <p>{t("home.hero_subtitle")}</p>
                 <Link to="/products" className="btn btn-primary" style={{ background: "#fff", color: "#0984e3" }}>
-                    Shop Now →
+                    {t("home.shop_now")} →
                 </Link>
             </div>
 
             {/* Categories */}
             {categories.length > 0 && (
                 <div style={{ marginBottom: 32 }}>
-                    <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>Browse Categories</h2>
+                    <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>{t("home.browse_categories")}</h2>
                     <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 8 }}>
                         {categories.map((cat) => (
                             <Link
@@ -37,7 +40,7 @@ export default function Home() {
                                     color: "#2d3436", fontWeight: 500, fontSize: 13, transition: "all 0.2s",
                                 }}
                             >
-                                🏷️ {cat.name}
+                                🏷️ {localized(cat, "name", i18n.language)}
                             </Link>
                         ))}
                     </div>
@@ -47,23 +50,23 @@ export default function Home() {
             {/* Featured Products */}
             <div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                    <h2 style={{ fontSize: 18, fontWeight: 700 }}>Featured Products</h2>
-                    <Link to="/products" style={{ color: "#0984e3", fontSize: 13, textDecoration: "none" }}>View All →</Link>
+                    <h2 style={{ fontSize: 18, fontWeight: 700 }}>{t("home.featured_products")}</h2>
+                    <Link to="/products" style={{ color: "#0984e3", fontSize: 13, textDecoration: "none" }}>{t("home.view_all")} →</Link>
                 </div>
                 <div className="products-grid">
-                    {featured.map((p) => <ProductCard key={p.id} product={p} />)}
+                    {featured.map((p) => <ProductCard key={p.id} product={p} t={t} />)}
                 </div>
             </div>
 
             {/* How it works */}
             <div className="card" style={{ marginTop: 16 }}>
-                <h2>How It Works</h2>
+                <h2>{t("home.how_it_works")}</h2>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 20, marginTop: 8 }}>
                     {[
-                        ["🛒", "Browse & Add to Cart", "Find products and add them to your cart"],
-                        ["💳", "Pay 20% Advance", "Pay at least 20% to confirm your order"],
-                        ["📅", "Get Delivery Date", "We'll notify you when your order is ready"],
-                        ["🏪", "Collect & Pay Balance", "Come to our store and pay the remaining amount"],
+                        ["🛒", t("home.step1_title"), t("home.step1_desc")],
+                        ["💳", t("home.step2_title"), t("home.step2_desc")],
+                        ["📅", t("home.step3_title"), t("home.step3_desc")],
+                        ["🏪", t("home.step4_title"), t("home.step4_desc")],
                     ].map(([icon, title, desc]) => (
                         <div key={title} style={{ textAlign: "center" }}>
                             <div style={{ fontSize: 36, marginBottom: 8 }}>{icon}</div>
@@ -77,7 +80,8 @@ export default function Home() {
     );
 }
 
-function ProductCard({ product }) {
+function ProductCard({ product, t }) {
+    const { i18n } = useTranslation();
     const cover = product.images?.find((i) => i.is_cover) || product.images?.[0];
     const hasVariants = product.variants?.length > 0;
     const totalQty = hasVariants
@@ -97,8 +101,8 @@ function ProductCard({ product }) {
                 <div className="product-card-img-placeholder">📦</div>
             )}
             <div className="product-card-body">
-                <div className="product-card-category">{product.category?.name || ""}</div>
-                <div className="product-card-name">{product.name}</div>
+                <div className="product-card-category">{localized(product.category, "name", i18n.language)}</div>
+                <div className="product-card-name">{localized(product, "name", i18n.language)}</div>
                 <div className="product-card-price">
                     ₹{effectivePrice.toFixed(2)}
                     {parseFloat(product.discount_percent) > 0 && (
@@ -106,7 +110,7 @@ function ProductCard({ product }) {
                     )}
                 </div>
                 <div className={`product-card-stock ${inStock ? "in" : "out"}`}>
-                    {inStock ? `✓ In Stock (${totalQty})` : "⚡ Available on Pre-order"}
+                    {inStock ? `✓ ${t("product_card.in_stock", { count: totalQty })}` : `⚡ ${t("product_card.preorder")}`}
                 </div>
             </div>
         </Link>

@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import api from "../api";
 
 export default function Login() {
+    const { t } = useTranslation();
     const [form, setForm] = useState({ phone: "", password: "" });
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
@@ -24,26 +26,26 @@ export default function Login() {
     return (
         <div className="auth-page">
             <div className="auth-box">
-                <h1>Welcome back 👋</h1>
-                <p>Sign in to your account</p>
+                <h1>{t("auth.welcome_back")}</h1>
+                <p>{t("auth.signin_subtitle")}</p>
                 {error && <div className="alert alert-error">{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label>Phone Number</label>
-                        <input type="text" placeholder="10-digit phone" value={form.phone}
+                        <label>{t("auth.phone")}</label>
+                        <input type="text" placeholder={t("auth.phone_placeholder")} value={form.phone}
                             onChange={(e) => setForm({ ...form, phone: e.target.value })} required />
                     </div>
                     <div className="form-group">
-                        <label>Password</label>
-                        <input type="password" placeholder="Password" value={form.password}
+                        <label>{t("auth.password")}</label>
+                        <input type="password" placeholder={t("auth.password_placeholder")} value={form.password}
                             onChange={(e) => setForm({ ...form, password: e.target.value })} required />
                     </div>
                     <button type="submit" className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }} disabled={loading}>
-                        {loading ? "Signing in…" : "Sign In"}
+                        {loading ? t("auth.signing_in") : t("auth.signin")}
                     </button>
                 </form>
                 <p style={{ textAlign: "center", marginTop: 16, fontSize: 14, color: "#636e72" }}>
-                    Don't have an account? <Link to="/signup" style={{ color: "#0984e3" }}>Sign Up</Link>
+                    {t("auth.no_account")} <Link to="/signup" style={{ color: "#0984e3" }}>{t("nav.signup")}</Link>
                 </p>
             </div>
         </div>

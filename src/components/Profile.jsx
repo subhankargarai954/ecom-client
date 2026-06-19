@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import api from "../api";
 
 export default function Profile() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [form, setForm] = useState({ name: "", email: "", address: "" });
     const [saving, setSaving] = useState(false);
     const [msg, setMsg] = useState("");
-    const [pwForm, setPwForm] = useState({ current: "", new: "", confirm: "" });
+    const [isError, setIsError] = useState(false);
 
     useEffect(() => {
         api.get("/api/auth/profile").then((r) => {
@@ -19,14 +21,15 @@ export default function Profile() {
 
     const saveProfile = async (e) => {
         e.preventDefault();
-        setSaving(true); setMsg("");
+        setSaving(true); setMsg(""); setIsError(false);
         try {
             await api.put("/api/auth/profile", form);
-            setMsg("Profile updated!");
+            setMsg(t("profile.updated"));
             const stored = JSON.parse(localStorage.getItem("customerUser") || "{}");
             localStorage.setItem("customerUser", JSON.stringify({ ...stored, name: form.name }));
         } catch (err) {
             setMsg(err.response?.data?.error || "Update failed.");
+            setIsError(true);
         } finally { setSaving(false); }
     };
 
@@ -36,43 +39,43 @@ export default function Profile() {
         navigate("/login");
     };
 
-    if (!user) return <div style={{ padding: 48, color: "#636e72" }}>Loading…</div>;
+    if (!user) return <div style={{ padding: 48, color: "#636e72" }}>{t("profile.loading")}</div>;
 
     return (
         <div style={{ maxWidth: 520, margin: "0 auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                <h1 style={{ fontSize: 22, fontWeight: 700 }}>My Profile</h1>
-                <button className="btn btn-outline btn-sm" onClick={logout}>Logout</button>
+                <h1 style={{ fontSize: 22, fontWeight: 700 }}>{t("profile.title")}</h1>
+                <button className="btn btn-outline btn-sm" onClick={logout}>{t("nav.logout")}</button>
             </div>
 
-            {msg && <div className={`alert ${msg.includes("Updated") || msg.includes("updated") ? "alert-success" : "alert-error"}`}>{msg}</div>}
+            {msg && <div className={`alert ${isError ? "alert-error" : "alert-success"}`}>{msg}</div>}
 
             <div className="card">
-                <h2>Account Details</h2>
+                <h2>{t("profile.account_details")}</h2>
                 <div style={{ marginBottom: 16, padding: "10px 14px", background: "#f5f6fa", borderRadius: 8, fontSize: 13, color: "#636e72" }}>
-                    📞 Phone: <strong>{user.phone}</strong> (cannot be changed)
+                    📞 {t("profile.phone_note", { phone: user.phone })}
                 </div>
                 <form onSubmit={saveProfile}>
                     <div className="form-group">
-                        <label>Full Name</label>
+                        <label>{t("profile.full_name")}</label>
                         <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
                     </div>
                     <div className="form-group">
-                        <label>Email</label>
+                        <label>{t("profile.email")}</label>
                         <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
                     </div>
                     <div className="form-group">
-                        <label>Address</label>
+                        <label>{t("profile.address")}</label>
                         <input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
                     </div>
                     <button type="submit" className="btn btn-primary" disabled={saving}>
-                        {saving ? "Saving…" : "Save Changes"}
+                        {saving ? t("profile.saving") : t("profile.save_changes")}
                     </button>
                 </form>
             </div>
 
             <div className="card">
-                <h2>Member Since</h2>
+                <h2>{t("profile.member_since")}</h2>
                 <p style={{ fontSize: 14, color: "#636e72" }}>
                     {new Date(user.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
                 </p>

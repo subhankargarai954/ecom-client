@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import api from "../api";
+import { localized } from "../i18n/localize";
 
 export default function Cart() {
+    const { t, i18n } = useTranslation();
     const [cart, setCart] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
@@ -45,27 +48,27 @@ export default function Cart() {
         return !qty || qty < item.quantity;
     });
 
-    if (loading) return <div style={{ padding: 48, color: "#636e72" }}>Loading cart…</div>;
+    if (loading) return <div style={{ padding: 48, color: "#636e72" }}>{t("cart.loading")}</div>;
 
     if (cart.length === 0) {
         return (
             <div className="empty-state">
                 <div className="icon">🛒</div>
-                <h2>Your cart is empty</h2>
-                <p>Browse our products and add items to your cart.</p>
-                <Link to="/products" className="btn btn-primary" style={{ marginTop: 16 }}>Browse Products</Link>
+                <h2>{t("cart.empty")}</h2>
+                <p>{t("cart.empty_hint")}</p>
+                <Link to="/products" className="btn btn-primary" style={{ marginTop: 16 }}>{t("cart.browse_products")}</Link>
             </div>
         );
     }
 
     return (
         <div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 20 }}>Your Cart ({cart.length} item{cart.length !== 1 ? "s" : ""})</h1>
+            <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 20 }}>{t("cart.title_count", { count: cart.length })}</h1>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 24, alignItems: "start" }}>
                 <div>
                     {anyOutOfStock && (
                         <div className="alert alert-warning" style={{ marginBottom: 16 }}>
-                            ⚠️ Some items in your cart are out of stock. They will be treated as pre-orders with tentative delivery within 1 day.
+                            ⚠️ {t("cart.out_of_stock_warning")}
                         </div>
                     )}
                     <div className="cart-list">
@@ -82,10 +85,10 @@ export default function Cart() {
                                         <div className="cart-item-placeholder">📦</div>
                                     )}
                                     <div className="cart-item-info">
-                                        <h3>{item.product?.name}</h3>
+                                        <h3>{localized(item.product, "name", i18n.language)}</h3>
                                         {item.variant && <div className="variant">{item.variant.variant_name}</div>}
-                                        <div className="price">₹{price.toFixed(2)} each</div>
-                                        {outOfStock && <div style={{ color: "#e17055", fontSize: 12 }}>⚡ Pre-order (out of stock)</div>}
+                                        <div className="price">₹{price.toFixed(2)} {t("cart.each")}</div>
+                                        {outOfStock && <div style={{ color: "#e17055", fontSize: 12 }}>⚡ {t("cart.preorder_tag")}</div>}
                                     </div>
                                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
                                         <div className="qty-selector" style={{ margin: 0 }}>
@@ -94,7 +97,7 @@ export default function Cart() {
                                             <button onClick={() => updateQty(item.id, item.quantity + 1)}>+</button>
                                         </div>
                                         <div style={{ fontWeight: 700 }}>₹{(price * item.quantity).toFixed(2)}</div>
-                                        <button onClick={() => removeItem(item.id)} style={{ background: "none", border: "none", color: "#d63031", cursor: "pointer", fontSize: 12 }}>Remove</button>
+                                        <button onClick={() => removeItem(item.id)} style={{ background: "none", border: "none", color: "#d63031", cursor: "pointer", fontSize: 12 }}>{t("cart.remove")}</button>
                                     </div>
                                 </div>
                             );
@@ -104,18 +107,18 @@ export default function Cart() {
 
                 {/* Summary */}
                 <div className="cart-summary">
-                    <h2>Order Summary</h2>
-                    <div className="summary-row"><span>Subtotal ({cart.length} items)</span><span>₹{subtotal.toFixed(2)}</span></div>
-                    <div className="summary-row total"><span>Total</span><strong>₹{subtotal.toFixed(2)}</strong></div>
+                    <h2>{t("cart.order_summary")}</h2>
+                    <div className="summary-row"><span>{t("cart.subtotal", { count: cart.length })}</span><span>₹{subtotal.toFixed(2)}</span></div>
+                    <div className="summary-row total"><span>{t("cart.total")}</span><strong>₹{subtotal.toFixed(2)}</strong></div>
                     <div style={{ background: "#e8f5e9", borderRadius: 8, padding: "10px 14px", margin: "16px 0", fontSize: 13, color: "#2e7d32" }}>
-                        💳 Minimum advance: <strong>₹{minAdvance.toFixed(2)}</strong> (20% of total)
+                        💳 {t("cart.min_advance")}: <strong>₹{minAdvance.toFixed(2)}</strong> {t("cart.min_advance_note")}
                     </div>
                     <button className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }}
                         onClick={() => navigate("/checkout")}>
-                        Proceed to Checkout →
+                        {t("cart.proceed_checkout")} →
                     </button>
                     <Link to="/products" className="btn btn-outline" style={{ width: "100%", justifyContent: "center", marginTop: 10 }}>
-                        Continue Shopping
+                        {t("cart.continue_shopping")}
                     </Link>
                 </div>
             </div>

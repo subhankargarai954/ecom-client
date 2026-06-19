@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import api from "../api";
+import { localized } from "../i18n/localize";
 
 export default function Checkout() {
+    const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const [cart, setCart] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -37,7 +40,7 @@ export default function Checkout() {
     const handlePlaceOrder = async () => {
         const advance = parseFloat(form.advance_paid);
         if (isNaN(advance) || advance < minAdvance) {
-            setError(`Minimum advance payment is ₹${minAdvance.toFixed(2)} (20% of ₹${total.toFixed(2)}).`);
+            setError(t("checkout.min_advance_error", { amount: `₹${minAdvance.toFixed(2)}`, total: `₹${total.toFixed(2)}` }));
             return;
         }
 
@@ -50,7 +53,7 @@ export default function Checkout() {
         } finally { setPlacing(false); }
     };
 
-    if (loading) return <div style={{ padding: 48, color: "#636e72" }}>Loading…</div>;
+    if (loading) return <div style={{ padding: 48, color: "#636e72" }}>{t("profile.loading")}</div>;
 
     if (cart.length === 0) {
         navigate("/cart");
@@ -59,24 +62,24 @@ export default function Checkout() {
 
     return (
         <div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 20 }}>Checkout</h1>
+            <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 20 }}>{t("checkout.title")}</h1>
 
             <div className="checkout-grid">
                 {/* Left: Payment Form */}
                 <div>
                     {/* Delivery Info */}
                     <div className="card">
-                        <h2>Delivery Information</h2>
+                        <h2>{t("checkout.delivery_info")}</h2>
                         <div style={{ fontSize: 14, color: "#636e72", lineHeight: 1.7 }}>
-                            <p>📍 <strong>Pickup-only</strong> — You'll need to collect your order from our store.</p>
+                            <p>📍 {t("checkout.pickup_only")}</p>
                             {allAvailable ? (
                                 <div className="delivery-box today" style={{ marginTop: 12 }}>
-                                    🚀 All items are in stock. Ready for pickup: <strong>{today}</strong>
+                                    🚀 {t("checkout.all_in_stock", { date: today })}
                                 </div>
                             ) : (
                                 <div className="delivery-box preorder" style={{ marginTop: 12 }}>
-                                    ⚡ Some items are on pre-order. Tentative delivery: <strong>~{tomorrow}</strong>
-                                    <br /><small>Admin will confirm the exact date and you can view it in "My Orders".</small>
+                                    ⚡ {t("checkout.some_preorder", { date: tomorrow })}
+                                    <br /><small>{t("checkout.admin_confirm_note")}</small>
                                 </div>
                             )}
                         </div>
@@ -84,16 +87,15 @@ export default function Checkout() {
 
                     {/* Payment */}
                     <div className="card">
-                        <h2>Advance Payment</h2>
+                        <h2>{t("checkout.advance_payment")}</h2>
                         <div className="alert alert-info" style={{ marginBottom: 16 }}>
-                            💳 Minimum <strong>20% advance</strong> (₹{minAdvance.toFixed(2)}) required to place the order.
-                            Pay remaining ₹{(total - minAdvance).toFixed(2)} when you collect.
+                            💳 {t("checkout.min_advance_required", { amount: `₹${minAdvance.toFixed(2)}`, remaining: `₹${(total - minAdvance).toFixed(2)}` })}
                         </div>
 
                         {error && <div className="alert alert-error">{error}</div>}
 
                         <div className="form-group">
-                            <label>Advance Amount (₹) *</label>
+                            <label>{t("checkout.advance_amount")} (₹) *</label>
                             <input
                                 type="number"
                                 step="0.01"
@@ -101,31 +103,31 @@ export default function Checkout() {
                                 max={total.toFixed(2)}
                                 value={form.advance_paid}
                                 onChange={(e) => setForm({ ...form, advance_paid: e.target.value })}
-                                placeholder={`Min ₹${minAdvance.toFixed(2)}`}
+                                placeholder={t("checkout.advance_min_placeholder", { amount: `₹${minAdvance.toFixed(2)}` })}
                             />
                             <small style={{ color: "#636e72", fontSize: 12 }}>
-                                Enter between ₹{minAdvance.toFixed(2)} and ₹{total.toFixed(2)}
+                                {t("checkout.enter_between", { min: `₹${minAdvance.toFixed(2)}`, max: `₹${total.toFixed(2)}` })}
                             </small>
                         </div>
                         <div className="form-group">
-                            <label>Payment Mode</label>
+                            <label>{t("checkout.payment_mode")}</label>
                             <select value={form.advance_payment_mode}
                                 onChange={(e) => setForm({ ...form, advance_payment_mode: e.target.value })}>
-                                <option value="cash">Cash</option>
-                                <option value="online">Online</option>
+                                <option value="cash">{t("checkout.cash")}</option>
+                                <option value="online">{t("checkout.online")}</option>
                             </select>
                         </div>
 
                         <button className="btn btn-primary" style={{ width: "100%", justifyContent: "center", marginTop: 8 }}
                             onClick={handlePlaceOrder} disabled={placing}>
-                            {placing ? "Placing Order…" : `Place Order & Pay ₹${parseFloat(form.advance_paid || 0).toFixed(2)} Advance`}
+                            {placing ? t("checkout.placing") : t("checkout.place_order", { amount: `₹${parseFloat(form.advance_paid || 0).toFixed(2)}` })}
                         </button>
                     </div>
                 </div>
 
                 {/* Right: Order Summary */}
                 <div className="cart-summary">
-                    <h2>Order Summary</h2>
+                    <h2>{t("checkout.order_summary")}</h2>
                     {cart.map((item) => {
                         const price = getPrice(item);
                         const cover = item.product?.images?.find((i) => i.is_cover) || item.product?.images?.[0];
@@ -137,7 +139,7 @@ export default function Checkout() {
                                     <div style={{ width: 50, height: 50, borderRadius: 6, background: "#f5f6fa", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>📦</div>
                                 )}
                                 <div style={{ flex: 1 }}>
-                                    <div style={{ fontSize: 13, fontWeight: 500 }}>{item.product?.name}</div>
+                                    <div style={{ fontSize: 13, fontWeight: 500 }}>{localized(item.product, "name", i18n.language)}</div>
                                     {item.variant && <div style={{ fontSize: 11, color: "#636e72" }}>{item.variant.variant_name}</div>}
                                     <div style={{ fontSize: 12, color: "#636e72" }}>× {item.quantity}</div>
                                 </div>
@@ -146,13 +148,13 @@ export default function Checkout() {
                         );
                     })}
                     <div className="summary-row" style={{ marginTop: 12 }}>
-                        <span>Total</span><strong>₹{total.toFixed(2)}</strong>
+                        <span>{t("checkout.total")}</span><strong>₹{total.toFixed(2)}</strong>
                     </div>
                     <div className="summary-row" style={{ color: "#00b894" }}>
-                        <span>Advance (minimum)</span><span>₹{minAdvance.toFixed(2)}</span>
+                        <span>{t("checkout.advance_minimum")}</span><span>₹{minAdvance.toFixed(2)}</span>
                     </div>
                     <div className="summary-row" style={{ color: "#e17055" }}>
-                        <span>Remaining at pickup</span><span>₹{(total - minAdvance).toFixed(2)}</span>
+                        <span>{t("checkout.remaining_pickup")}</span><span>₹{(total - minAdvance).toFixed(2)}</span>
                     </div>
                 </div>
             </div>
