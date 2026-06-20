@@ -12,6 +12,7 @@ import Cart from "./components/Cart";
 import Checkout from "./components/Checkout";
 import MyOrders from "./components/MyOrders";
 import OrderDetail from "./components/OrderDetail";
+import Invoice from "./components/Invoice";
 import Profile from "./components/Profile";
 
 function PrivateRoute({ children }) {
@@ -34,6 +35,7 @@ function App() {
                     <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />
                     <Route path="/orders" element={<PrivateRoute><MyOrders /></PrivateRoute>} />
                     <Route path="/orders/:id" element={<PrivateRoute><OrderDetail /></PrivateRoute>} />
+                    <Route path="/invoice/:id" element={<PrivateRoute><Invoice /></PrivateRoute>} />
                     <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
                 </Routes>
             </div>

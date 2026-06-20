@@ -3,29 +3,30 @@ import { useParams, useLocation, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import api from "../api";
 import { localized } from "../i18n/localize";
-
-const STEPS = ["pending", "confirmed", "ready_for_pickup", "delivered"];
+import { payWithGateway } from "../payment";
 
 export default function OrderDetail() {
     const { t, i18n } = useTranslation();
     const { id } = useParams();
     const location = useLocation();
     const justPlaced = location.state?.justPlaced;
-    const orderData = location.state?.orderData;
-
-    const STEP_LABELS = [
-        t("order_detail.step_placed"),
-        t("order_detail.step_confirmed"),
-        t("order_detail.step_ready"),
-        t("order_detail.step_delivered"),
-    ];
+    const placedMode = location.state?.mode;
+    const user = JSON.parse(localStorage.getItem("customerUser") || "null");
 
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [cancelling, setCancelling] = useState(false);
     const [cancelReason, setCancelReason] = useState("");
     const [showCancel, setShowCancel] = useState(false);
-    const [message, setMessage] = useState(justPlaced ? "✅ " + t("order_detail.placed_success") : "");
+    const [paying, setPaying] = useState(false);
+    const [message, setMessage] = useState(
+        justPlaced ? (placedMode === "cash" ? "⏳ " + t("pay.awaiting_admin") : "🎉 " + t("pay.online_confirmed")) : ""
+    );
+
+    const reload = async () => {
+        const r = await api.get(`/api/orders/${id}`);
+        setOrder(r.data.order);
+    };
 
     useEffect(() => {
         api.get(`/api/orders/${id}`)
@@ -40,20 +41,77 @@ export default function OrderDetail() {
             await api.put(`/api/orders/${id}/cancel`, { cancellation_reason: cancelReason });
             setMessage(t("order_detail.cancel_success"));
             setShowCancel(false);
-            const r = await api.get(`/api/orders/${id}`);
-            setOrder(r.data.order);
+            await reload();
         } catch (err) {
             alert(err.response?.data?.error || "Could not cancel order.");
         } finally { setCancelling(false); }
     };
 
+    // Complete the advance payment for an order still awaiting payment.
+    const completeAdvance = async () => {
+        setPaying(true);
+        try {
+            const { data } = await api.post(`/api/orders/${id}/pay-advance/online`);
+            const result = await payWithGateway(data, {
+                description: `Advance for order #${id}`,
+                prefill: { name: user?.name, contact: user?.phone, email: user?.email },
+            });
+            await api.post(`/api/orders/${id}/verify-payment`, {
+                payment_id: data.payment_id,
+                gateway_payment_id: result.gateway_payment_id,
+                signature: result.signature,
+            });
+            setMessage("🎉 " + t("pay.online_confirmed"));
+            await reload();
+        } catch (err) {
+            alert(err.response?.data?.error || err.message || "Payment failed.");
+        } finally { setPaying(false); }
+    };
+
+    // Pay the remaining balance online.
+    const payBalance = async () => {
+        setPaying(true);
+        try {
+            const { data } = await api.post(`/api/orders/${id}/pay-final/online`);
+            const result = await payWithGateway(data, {
+                description: `Balance for order #${id}`,
+                prefill: { name: user?.name, contact: user?.phone, email: user?.email },
+            });
+            await api.post(`/api/orders/${id}/verify-final-payment`, {
+                payment_id: data.payment_id,
+                gateway_payment_id: result.gateway_payment_id,
+                signature: result.signature,
+            });
+            setMessage("✅ " + t("pay.balance_paid"));
+            await reload();
+        } catch (err) {
+            alert(err.response?.data?.error || err.message || "Payment failed.");
+        } finally { setPaying(false); }
+    };
+
+    const downloadInvoice = async () => {
+        try {
+            const res = await api.get(`/api/orders/${id}/invoice.pdf`, { responseType: "blob" });
+            const url = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));
+            const a = document.createElement("a");
+            a.href = url; a.download = `invoice-${order.invoice_no || order.id}.pdf`;
+            a.click(); window.URL.revokeObjectURL(url);
+        } catch { alert("Could not download invoice."); }
+    };
+
     if (loading) return <div style={{ padding: 48, color: "var(--text-muted)" }}>{t("profile.loading")}</div>;
     if (!order) return <div className="alert alert-error">{t("orders.none")}</div>;
 
+    // Timeline adapts: made-to-order shows a production step, in-stock skips it.
+    const STEPS = order.is_made_to_order
+        ? ["confirmed", "in_production", "ready_for_pickup", "delivered"]
+        : ["confirmed", "ready_for_pickup", "delivered"];
     const stepIdx = STEPS.indexOf(order.order_status);
+    const preConfirm = ["awaiting_payment", "pending"].includes(order.order_status);
     const pending_amount = Math.max(0,
         parseFloat(order.total_amount) - parseFloat(order.advance_paid) - parseFloat(order.final_paid || 0)
     );
+    const canPayBalance = pending_amount > 0 && ["confirmed", "in_production", "ready_for_pickup"].includes(order.order_status);
 
     return (
         <div>
@@ -68,21 +126,24 @@ export default function OrderDetail() {
                 </span>
             </div>
 
-            {message && <div className="alert alert-success">{message}</div>}
+            {message && <div className={`alert ${order.order_status === "pending" ? "alert-warning" : "alert-success"}`}>{message}</div>}
 
-            {justPlaced && orderData && (
-                <div className="card" style={{ background: "var(--alert-success-bg)", border: "1px solid var(--border)" }}>
-                    <h2 style={{ color: "var(--alert-success-text)" }}>🎉 {t("order_detail.confirmed_title")}</h2>
-                    <p style={{ fontSize: 14, color: "var(--alert-success-text)" }}>
-                        {orderData.all_items_available
-                            ? t("order_detail.ready_today_msg")
-                            : t("order_detail.preorder_msg", { date: orderData.delivery_date })}
+            {/* Pre-confirmation banner (awaiting payment / cash confirmation) */}
+            {preConfirm && (
+                <div className="card" style={{ background: "var(--alert-warning-bg)" }}>
+                    <p style={{ fontSize: 14, color: "var(--alert-warning-text)", fontWeight: 500 }}>
+                        {order.order_status === "pending" ? "⏳ " + t("pay.awaiting_admin") : "💳 " + t("pay.complete_payment")}
                     </p>
+                    {order.order_status === "awaiting_payment" && (
+                        <button className="btn btn-primary" style={{ marginTop: 12 }} onClick={completeAdvance} disabled={paying}>
+                            {paying ? "…" : "📲 " + t("pay.complete_payment")}
+                        </button>
+                    )}
                 </div>
             )}
 
             {/* Timeline */}
-            {order.order_status !== "cancelled" && (
+            {!preConfirm && order.order_status !== "cancelled" && (
                 <div className="card">
                     <div style={{ display: "flex", gap: 0 }}>
                         {STEPS.map((s, i) => (
@@ -105,11 +166,28 @@ export default function OrderDetail() {
                                     {i < stepIdx ? "✓" : i + 1}
                                 </div>
                                 <div style={{ fontSize: 11, color: i === stepIdx ? "var(--accent)" : i < stepIdx ? "var(--ok)" : "var(--text-muted)", fontWeight: i === stepIdx ? 700 : 400 }}>
-                                    {STEP_LABELS[i]}
+                                    {t(`order_status.${s}`)}
                                 </div>
                             </div>
                         ))}
                     </div>
+                </div>
+            )}
+
+            {/* Payment & invoice actions */}
+            {(canPayBalance || order.order_status === "delivered") && (
+                <div className="card" style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+                    {canPayBalance && (
+                        <button className="btn btn-primary" onClick={payBalance} disabled={paying}>
+                            {paying ? "…" : "📲 " + t("pay.pay_balance_online") + ` (₹${pending_amount.toFixed(2)})`}
+                        </button>
+                    )}
+                    {order.order_status === "delivered" && (
+                        <>
+                            <Link to={`/invoice/${order.id}`} className="btn btn-outline">🧾 {t("pay.view_invoice")}</Link>
+                            <button className="btn btn-outline" onClick={downloadInvoice}>⬇ PDF</button>
+                        </>
+                    )}
                 </div>
             )}
 

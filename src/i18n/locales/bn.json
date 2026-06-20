@@ -102,7 +102,13 @@
         "total": "মোট",
         "advance_minimum": "অগ্রিম (ন্যূনতম)",
         "remaining_pickup": "সংগ্রহের সময় বাকি",
-        "min_advance_error": "ন্যূনতম অগ্রিম পেমেন্ট {{amount}} ({{total}} এর ২০%)।"
+        "min_advance_error": "ন্যূনতম অগ্রিম পেমেন্ট {{amount}} ({{total}} এর ২০%)।",
+        "pay_full": "সম্পূর্ণ দিন",
+        "pay_online": "অনলাইন পেমেন্ট",
+        "online_sub": "UPI / QR / কার্ড",
+        "cash_sub": "আমাদের কাছে দিন",
+        "cash_note": "নগদের ক্ষেত্রে, আমাদের অ্যাডমিন আপনার অগ্রিম প্রাপ্তি নিশ্চিত করলে অর্ডারটি স্থাপন হবে।",
+        "pay_and_place": "{{amount}} দিন ও অর্ডার করুন"
     },
     "orders": {
         "title": "আমার অর্ডার",
@@ -120,11 +126,22 @@
         "pending_confirmation": "অ্যাডমিন নিশ্চিতকরণের অপেক্ষায়"
     },
     "order_status": {
-        "pending": "অপেক্ষমাণ",
+        "awaiting_payment": "পেমেন্টের অপেক্ষায়",
+        "pending": "নিশ্চিতকরণের অপেক্ষায়",
         "confirmed": "নিশ্চিত",
+        "in_production": "উৎপাদনে আছে",
         "ready_for_pickup": "সংগ্রহের জন্য প্রস্তুত",
         "delivered": "ডেলিভারি সম্পন্ন",
         "cancelled": "বাতিল"
+    },
+    "pay": {
+        "pay_balance_online": "বাকি অনলাইনে দিন",
+        "complete_payment": "পেমেন্ট সম্পূর্ণ করুন",
+        "balance_paid": "বাকি পরিশোধ হয়েছে। ধন্যবাদ!",
+        "view_invoice": "ইনভয়েস দেখুন / ডাউনলোড করুন",
+        "view_slip": "পেমেন্ট স্লিপ",
+        "awaiting_admin": "আপনার অর্ডার স্থাপন হয়েছে। আমাদের দল আপনার নগদ অগ্রিম নিশ্চিত করার অপেক্ষায়।",
+        "online_confirmed": "পেমেন্ট গৃহীত — আপনার অর্ডার নিশ্চিত!"
     },
     "order_detail": {
         "back": "অর্ডারে ফিরে যান",

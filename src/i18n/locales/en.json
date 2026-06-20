@@ -102,7 +102,13 @@
         "total": "Total",
         "advance_minimum": "Advance (minimum)",
         "remaining_pickup": "Remaining at pickup",
-        "min_advance_error": "Minimum advance payment is {{amount}} (20% of {{total}})."
+        "min_advance_error": "Minimum advance payment is {{amount}} (20% of {{total}}).",
+        "pay_full": "Pay full",
+        "pay_online": "Pay Online",
+        "online_sub": "UPI / QR / Card",
+        "cash_sub": "Pay at our place",
+        "cash_note": "For cash, your order is placed once our admin confirms receiving your advance.",
+        "pay_and_place": "Pay {{amount}} & Place Order"
     },
     "orders": {
         "title": "My Orders",
@@ -120,11 +126,22 @@
         "pending_confirmation": "Pending admin confirmation"
     },
     "order_status": {
-        "pending": "Pending",
+        "awaiting_payment": "Awaiting Payment",
+        "pending": "Pending Confirmation",
         "confirmed": "Confirmed",
+        "in_production": "In Production",
         "ready_for_pickup": "Ready for Pickup",
         "delivered": "Delivered",
         "cancelled": "Cancelled"
+    },
+    "pay": {
+        "pay_balance_online": "Pay Balance Online",
+        "complete_payment": "Complete Payment",
+        "balance_paid": "Balance paid. Thank you!",
+        "view_invoice": "View / Download Invoice",
+        "view_slip": "Payment Slip",
+        "awaiting_admin": "Your order is placed. Waiting for our team to confirm your cash advance.",
+        "online_confirmed": "Payment received — your order is confirmed!"
     },
     "order_detail": {
         "back": "Back to Orders",

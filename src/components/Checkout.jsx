@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import api from "../api";
 import { localized } from "../i18n/localize";
+import { payWithGateway } from "../payment";
 
 export default function Checkout() {
     const { t, i18n } = useTranslation();
@@ -11,7 +12,8 @@ export default function Checkout() {
     const [loading, setLoading] = useState(true);
     const [placing, setPlacing] = useState(false);
     const [error, setError] = useState("");
-    const [form, setForm] = useState({ advance_paid: "", advance_payment_mode: "cash" });
+    const [form, setForm] = useState({ advance_paid: "", payment_method: "cash" });
+    const user = JSON.parse(localStorage.getItem("customerUser") || "null");
 
     useEffect(() => {
         api.get("/api/cart")
@@ -37,6 +39,8 @@ export default function Checkout() {
     const today = new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
     const tomorrow = new Date(Date.now() + 86400000).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 
+    const payFull = () => setForm((f) => ({ ...f, advance_paid: total.toFixed(2) }));
+
     const handlePlaceOrder = async () => {
         const advance = parseFloat(form.advance_paid);
         if (isNaN(advance) || advance < minAdvance) {
@@ -46,10 +50,31 @@ export default function Checkout() {
 
         setError(""); setPlacing(true);
         try {
-            const { data } = await api.post("/api/orders", form);
-            navigate(`/orders/${data.order_id}`, { state: { justPlaced: true, orderData: data } });
+            const { data } = await api.post("/api/orders/checkout", {
+                advance_paid: advance,
+                payment_method: form.payment_method,
+            });
+
+            if (data.mode === "cash") {
+                // Order placed; waiting for admin to confirm the cash advance.
+                navigate(`/orders/${data.order_id}`, { state: { justPlaced: true, mode: "cash" } });
+                return;
+            }
+
+            // Online: open the gateway (or simulation), then verify.
+            const result = await payWithGateway(data, {
+                name: "MyStore",
+                description: `Advance for order #${data.order_id}`,
+                prefill: { name: user?.name, contact: user?.phone, email: user?.email },
+            });
+            await api.post(`/api/orders/${data.order_id}/verify-payment`, {
+                payment_id: data.payment_id,
+                gateway_payment_id: result.gateway_payment_id,
+                signature: result.signature,
+            });
+            navigate(`/orders/${data.order_id}`, { state: { justPlaced: true, mode: "online" } });
         } catch (err) {
-            setError(err.response?.data?.error || "Failed to place order. Please try again.");
+            setError(err.response?.data?.error || err.message || "Failed to place order. Please try again.");
         } finally { setPlacing(false); }
     };
 
@@ -96,31 +121,57 @@ export default function Checkout() {
 
                         <div className="form-group">
                             <label>{t("checkout.advance_amount")} (₹) *</label>
-                            <input
-                                type="number"
-                                step="0.01"
-                                min={minAdvance.toFixed(2)}
-                                max={total.toFixed(2)}
-                                value={form.advance_paid}
-                                onChange={(e) => setForm({ ...form, advance_paid: e.target.value })}
-                                placeholder={t("checkout.advance_min_placeholder", { amount: `₹${minAdvance.toFixed(2)}` })}
-                            />
+                            <div style={{ display: "flex", gap: 8 }}>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    min={minAdvance.toFixed(2)}
+                                    max={total.toFixed(2)}
+                                    value={form.advance_paid}
+                                    onChange={(e) => setForm({ ...form, advance_paid: e.target.value })}
+                                    placeholder={t("checkout.advance_min_placeholder", { amount: `₹${minAdvance.toFixed(2)}` })}
+                                />
+                                <button type="button" className="btn btn-outline btn-sm" style={{ whiteSpace: "nowrap" }} onClick={payFull}>
+                                    {t("checkout.pay_full")}
+                                </button>
+                            </div>
                             <small style={{ color: "var(--text-muted)", fontSize: 12 }}>
                                 {t("checkout.enter_between", { min: `₹${minAdvance.toFixed(2)}`, max: `₹${total.toFixed(2)}` })}
                             </small>
                         </div>
+
                         <div className="form-group">
                             <label>{t("checkout.payment_mode")}</label>
-                            <select value={form.advance_payment_mode}
-                                onChange={(e) => setForm({ ...form, advance_payment_mode: e.target.value })}>
-                                <option value="cash">{t("checkout.cash")}</option>
-                                <option value="online">{t("checkout.online")}</option>
-                            </select>
+                            <div className="pay-method-grid">
+                                <button type="button"
+                                    className={`pay-method ${form.payment_method === "online" ? "selected" : ""}`}
+                                    onClick={() => setForm({ ...form, payment_method: "online" })}>
+                                    <span className="pm-icon">📲</span>
+                                    <span className="pm-title">{t("checkout.pay_online")}</span>
+                                    <span className="pm-sub">{t("checkout.online_sub")}</span>
+                                </button>
+                                <button type="button"
+                                    className={`pay-method ${form.payment_method === "cash" ? "selected" : ""}`}
+                                    onClick={() => setForm({ ...form, payment_method: "cash" })}>
+                                    <span className="pm-icon">💵</span>
+                                    <span className="pm-title">{t("checkout.cash")}</span>
+                                    <span className="pm-sub">{t("checkout.cash_sub")}</span>
+                                </button>
+                            </div>
                         </div>
+
+                        {form.payment_method === "cash" && (
+                            <div className="alert alert-warning" style={{ fontSize: 13 }}>
+                                ⏳ {t("checkout.cash_note")}
+                            </div>
+                        )}
 
                         <button className="btn btn-primary" style={{ width: "100%", justifyContent: "center", marginTop: 8 }}
                             onClick={handlePlaceOrder} disabled={placing}>
-                            {placing ? t("checkout.placing") : t("checkout.place_order", { amount: `₹${parseFloat(form.advance_paid || 0).toFixed(2)}` })}
+                            {placing ? t("checkout.placing")
+                                : form.payment_method === "online"
+                                    ? t("checkout.pay_and_place", { amount: `₹${parseFloat(form.advance_paid || 0).toFixed(2)}` })
+                                    : t("checkout.place_order", { amount: `₹${parseFloat(form.advance_paid || 0).toFixed(2)}` })}
                         </button>
                     </div>
                 </div>

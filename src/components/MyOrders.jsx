@@ -4,8 +4,9 @@ import { useTranslation } from "react-i18next";
 import api from "../api";
 
 const STATUS_BADGE = {
-    pending: "badge-pending", confirmed: "badge-confirmed",
-    ready_for_pickup: "badge-ready", delivered: "badge-delivered", cancelled: "badge-cancelled",
+    awaiting_payment: "badge-pending", pending: "badge-pending", confirmed: "badge-confirmed",
+    in_production: "badge-confirmed", ready_for_pickup: "badge-ready",
+    delivered: "badge-delivered", cancelled: "badge-cancelled",
 };
 
 export default function MyOrders() {
