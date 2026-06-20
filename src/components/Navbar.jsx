@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import api from "../api";
 import LanguageSwitcher from "./LanguageSwitcher";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
     const navigate = useNavigate();
@@ -32,7 +33,8 @@ export default function Navbar() {
                     {user && <NavLink to="/orders">{t("nav.my_orders")}</NavLink>}
                 </div>
                 <div className="navbar-right">
-                    {/* Language switcher — placed just before the cart / auth buttons */}
+                    {/* Theme + language controls, placed just before the cart / auth buttons */}
+                    <ThemeToggle />
                     <LanguageSwitcher />
                     {user ? (
                         <>

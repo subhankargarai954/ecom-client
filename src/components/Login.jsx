@@ -44,8 +44,8 @@ export default function Login() {
                         {loading ? t("auth.signing_in") : t("auth.signin")}
                     </button>
                 </form>
-                <p style={{ textAlign: "center", marginTop: 16, fontSize: 14, color: "#636e72" }}>
-                    {t("auth.no_account")} <Link to="/signup" style={{ color: "#0984e3" }}>{t("nav.signup")}</Link>
+                <p style={{ textAlign: "center", marginTop: 16, fontSize: 14, color: "var(--text-muted)" }}>
+                    {t("auth.no_account")} <Link to="/signup" style={{ color: "var(--accent)" }}>{t("nav.signup")}</Link>
                 </p>
             </div>
         </div>

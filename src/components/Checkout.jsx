@@ -53,7 +53,7 @@ export default function Checkout() {
         } finally { setPlacing(false); }
     };
 
-    if (loading) return <div style={{ padding: 48, color: "#636e72" }}>{t("profile.loading")}</div>;
+    if (loading) return <div style={{ padding: 48, color: "var(--text-muted)" }}>{t("profile.loading")}</div>;
 
     if (cart.length === 0) {
         navigate("/cart");
@@ -70,7 +70,7 @@ export default function Checkout() {
                     {/* Delivery Info */}
                     <div className="card">
                         <h2>{t("checkout.delivery_info")}</h2>
-                        <div style={{ fontSize: 14, color: "#636e72", lineHeight: 1.7 }}>
+                        <div style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.7 }}>
                             <p>📍 {t("checkout.pickup_only")}</p>
                             {allAvailable ? (
                                 <div className="delivery-box today" style={{ marginTop: 12 }}>
@@ -105,7 +105,7 @@ export default function Checkout() {
                                 onChange={(e) => setForm({ ...form, advance_paid: e.target.value })}
                                 placeholder={t("checkout.advance_min_placeholder", { amount: `₹${minAdvance.toFixed(2)}` })}
                             />
-                            <small style={{ color: "#636e72", fontSize: 12 }}>
+                            <small style={{ color: "var(--text-muted)", fontSize: 12 }}>
                                 {t("checkout.enter_between", { min: `₹${minAdvance.toFixed(2)}`, max: `₹${total.toFixed(2)}` })}
                             </small>
                         </div>
@@ -132,16 +132,16 @@ export default function Checkout() {
                         const price = getPrice(item);
                         const cover = item.product?.images?.find((i) => i.is_cover) || item.product?.images?.[0];
                         return (
-                            <div key={item.id} style={{ display: "flex", gap: 12, alignItems: "center", padding: "10px 0", borderBottom: "1px solid #f5f6fa" }}>
+                            <div key={item.id} style={{ display: "flex", gap: 12, alignItems: "center", padding: "10px 0", borderBottom: "1px solid var(--border)" }}>
                                 {cover ? (
                                     <img src={cover.image_url} alt="" style={{ width: 50, height: 50, borderRadius: 6, objectFit: "cover" }} />
                                 ) : (
-                                    <div style={{ width: 50, height: 50, borderRadius: 6, background: "#f5f6fa", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>📦</div>
+                                    <div style={{ width: 50, height: 50, borderRadius: 6, background: "var(--surface-2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>📦</div>
                                 )}
                                 <div style={{ flex: 1 }}>
                                     <div style={{ fontSize: 13, fontWeight: 500 }}>{localized(item.product, "name", i18n.language)}</div>
-                                    {item.variant && <div style={{ fontSize: 11, color: "#636e72" }}>{item.variant.variant_name}</div>}
-                                    <div style={{ fontSize: 12, color: "#636e72" }}>× {item.quantity}</div>
+                                    {item.variant && <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{item.variant.variant_name}</div>}
+                                    <div style={{ fontSize: 12, color: "var(--text-muted)" }}>× {item.quantity}</div>
                                 </div>
                                 <div style={{ fontWeight: 600, fontSize: 13 }}>₹{(price * item.quantity).toFixed(2)}</div>
                             </div>
@@ -150,10 +150,10 @@ export default function Checkout() {
                     <div className="summary-row" style={{ marginTop: 12 }}>
                         <span>{t("checkout.total")}</span><strong>₹{total.toFixed(2)}</strong>
                     </div>
-                    <div className="summary-row" style={{ color: "#00b894" }}>
+                    <div className="summary-row" style={{ color: "var(--ok)" }}>
                         <span>{t("checkout.advance_minimum")}</span><span>₹{minAdvance.toFixed(2)}</span>
                     </div>
-                    <div className="summary-row" style={{ color: "#e17055" }}>
+                    <div className="summary-row" style={{ color: "var(--warn)" }}>
                         <span>{t("checkout.remaining_pickup")}</span><span>₹{(total - minAdvance).toFixed(2)}</span>
                     </div>
                 </div>

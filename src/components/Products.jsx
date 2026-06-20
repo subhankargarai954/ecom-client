@@ -58,7 +58,7 @@ export default function Products() {
             </div>
 
             {loading ? (
-                <div style={{ textAlign: "center", padding: 48, color: "#636e72" }}>{t("products.loading")}</div>
+                <div style={{ textAlign: "center", padding: 48, color: "var(--text-muted)" }}>{t("products.loading")}</div>
             ) : products.length === 0 ? (
                 <div className="empty-state">
                     <div className="icon">🔍</div>
@@ -67,7 +67,7 @@ export default function Products() {
                 </div>
             ) : (
                 <>
-                    <div style={{ color: "#636e72", fontSize: 13, marginBottom: 16 }}>{t("products.count", { count: total })}</div>
+                    <div style={{ color: "var(--text-muted)", fontSize: 13, marginBottom: 16 }}>{t("products.count", { count: total })}</div>
                     <div className="products-grid">
                         {products.map((p) => <ProductCard key={p.id} product={p} t={t} />)}
                     </div>
@@ -76,7 +76,7 @@ export default function Products() {
                             {page > 1 && (
                                 <button className="btn btn-outline btn-sm" onClick={() => setParam("page", page - 1)}>‹ {t("products.prev")}</button>
                             )}
-                            <span style={{ padding: "6px 12px", fontSize: 13, color: "#636e72" }}>{t("products.page", { page })}</span>
+                            <span style={{ padding: "6px 12px", fontSize: 13, color: "var(--text-muted)" }}>{t("products.page", { page })}</span>
                             {page * 20 < total && (
                                 <button className="btn btn-outline btn-sm" onClick={() => setParam("page", page + 1)}>{t("products.next")} ›</button>
                             )}
@@ -90,7 +90,9 @@ export default function Products() {
 
 function ProductCard({ product, t }) {
     const { i18n } = useTranslation();
+    const [imgError, setImgError] = useState(false);
     const cover = product.images?.find((i) => i.is_cover) || product.images?.[0];
+    const showImage = cover && !imgError;
     const hasVariants = product.variants?.length > 0;
     const totalQty = hasVariants
         ? product.variants.reduce((s, v) => s + (v.available_quantity || 0), 0)
@@ -103,10 +105,14 @@ function ProductCard({ product, t }) {
             {parseFloat(product.discount_percent) > 0 && (
                 <div className="product-card-badge">-{product.discount_percent}%</div>
             )}
-            {cover ? (
-                <img src={cover.image_url} alt={product.name} className="product-card-image" />
+            {showImage ? (
+                <img src={cover.image_url} alt={product.name} className="product-card-image"
+                    onError={() => setImgError(true)} />
             ) : (
-                <div className="product-card-img-placeholder">📦</div>
+                <div className="product-card-img-placeholder">
+                    <span className="placeholder-icon">🖼️</span>
+                    <span className="placeholder-text">No image</span>
+                </div>
             )}
             <div className="product-card-body">
                 <div className="product-card-category">{localized(product.category, "name", i18n.language)}</div>

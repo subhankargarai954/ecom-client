@@ -20,7 +20,7 @@ export default function Home() {
             <div className="hero">
                 <h1>{t("home.hero_title")}</h1>
                 <p>{t("home.hero_subtitle")}</p>
-                <Link to="/products" className="btn btn-primary" style={{ background: "#fff", color: "#0984e3" }}>
+                <Link to="/products" className="btn btn-primary" style={{ background: "#fff", color: "var(--accent)" }}>
                     {t("home.shop_now")} →
                 </Link>
             </div>
@@ -35,9 +35,9 @@ export default function Home() {
                                 key={cat.id}
                                 to={`/products?category_id=${cat.id}`}
                                 style={{
-                                    flexShrink: 0, background: "#fff", border: "1px solid #dfe6e9",
+                                    flexShrink: 0, background: "var(--surface)", border: "1px solid var(--border)",
                                     borderRadius: 10, padding: "10px 18px", textDecoration: "none",
-                                    color: "#2d3436", fontWeight: 500, fontSize: 13, transition: "all 0.2s",
+                                    color: "var(--text)", fontWeight: 500, fontSize: 13, transition: "all 0.2s",
                                 }}
                             >
                                 🏷️ {localized(cat, "name", i18n.language)}
@@ -51,7 +51,7 @@ export default function Home() {
             <div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
                     <h2 style={{ fontSize: 18, fontWeight: 700 }}>{t("home.featured_products")}</h2>
-                    <Link to="/products" style={{ color: "#0984e3", fontSize: 13, textDecoration: "none" }}>{t("home.view_all")} →</Link>
+                    <Link to="/products" style={{ color: "var(--accent)", fontSize: 13, textDecoration: "none" }}>{t("home.view_all")} →</Link>
                 </div>
                 <div className="products-grid">
                     {featured.map((p) => <ProductCard key={p.id} product={p} t={t} />)}
@@ -71,7 +71,7 @@ export default function Home() {
                         <div key={title} style={{ textAlign: "center" }}>
                             <div style={{ fontSize: 36, marginBottom: 8 }}>{icon}</div>
                             <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{title}</div>
-                            <div style={{ fontSize: 12, color: "#636e72" }}>{desc}</div>
+                            <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{desc}</div>
                         </div>
                     ))}
                 </div>
@@ -82,7 +82,9 @@ export default function Home() {
 
 function ProductCard({ product, t }) {
     const { i18n } = useTranslation();
+    const [imgError, setImgError] = useState(false);
     const cover = product.images?.find((i) => i.is_cover) || product.images?.[0];
+    const showImage = cover && !imgError;
     const hasVariants = product.variants?.length > 0;
     const totalQty = hasVariants
         ? product.variants.reduce((s, v) => s + (v.available_quantity || 0), 0)
@@ -95,10 +97,14 @@ function ProductCard({ product, t }) {
             {parseFloat(product.discount_percent) > 0 && (
                 <div className="product-card-badge">-{product.discount_percent}%</div>
             )}
-            {cover ? (
-                <img src={cover.image_url} alt={product.name} className="product-card-image" />
+            {showImage ? (
+                <img src={cover.image_url} alt={product.name} className="product-card-image"
+                    onError={() => setImgError(true)} />
             ) : (
-                <div className="product-card-img-placeholder">📦</div>
+                <div className="product-card-img-placeholder">
+                    <span className="placeholder-icon">🖼️</span>
+                    <span className="placeholder-text">No image</span>
+                </div>
             )}
             <div className="product-card-body">
                 <div className="product-card-category">{localized(product.category, "name", i18n.language)}</div>

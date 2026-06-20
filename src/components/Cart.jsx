@@ -48,7 +48,7 @@ export default function Cart() {
         return !qty || qty < item.quantity;
     });
 
-    if (loading) return <div style={{ padding: 48, color: "#636e72" }}>{t("cart.loading")}</div>;
+    if (loading) return <div style={{ padding: 48, color: "var(--text-muted)" }}>{t("cart.loading")}</div>;
 
     if (cart.length === 0) {
         return (
@@ -88,7 +88,7 @@ export default function Cart() {
                                         <h3>{localized(item.product, "name", i18n.language)}</h3>
                                         {item.variant && <div className="variant">{item.variant.variant_name}</div>}
                                         <div className="price">₹{price.toFixed(2)} {t("cart.each")}</div>
-                                        {outOfStock && <div style={{ color: "#e17055", fontSize: 12 }}>⚡ {t("cart.preorder_tag")}</div>}
+                                        {outOfStock && <div style={{ color: "var(--warn)", fontSize: 12 }}>⚡ {t("cart.preorder_tag")}</div>}
                                     </div>
                                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
                                         <div className="qty-selector" style={{ margin: 0 }}>
@@ -97,7 +97,7 @@ export default function Cart() {
                                             <button onClick={() => updateQty(item.id, item.quantity + 1)}>+</button>
                                         </div>
                                         <div style={{ fontWeight: 700 }}>₹{(price * item.quantity).toFixed(2)}</div>
-                                        <button onClick={() => removeItem(item.id)} style={{ background: "none", border: "none", color: "#d63031", cursor: "pointer", fontSize: 12 }}>{t("cart.remove")}</button>
+                                        <button onClick={() => removeItem(item.id)} style={{ background: "none", border: "none", color: "var(--bad)", cursor: "pointer", fontSize: 12 }}>{t("cart.remove")}</button>
                                     </div>
                                 </div>
                             );
@@ -110,7 +110,7 @@ export default function Cart() {
                     <h2>{t("cart.order_summary")}</h2>
                     <div className="summary-row"><span>{t("cart.subtotal", { count: cart.length })}</span><span>₹{subtotal.toFixed(2)}</span></div>
                     <div className="summary-row total"><span>{t("cart.total")}</span><strong>₹{subtotal.toFixed(2)}</strong></div>
-                    <div style={{ background: "#e8f5e9", borderRadius: 8, padding: "10px 14px", margin: "16px 0", fontSize: 13, color: "#2e7d32" }}>
+                    <div style={{ background: "var(--alert-success-bg)", borderRadius: 8, padding: "10px 14px", margin: "16px 0", fontSize: 13, color: "var(--alert-success-text)" }}>
                         💳 {t("cart.min_advance")}: <strong>₹{minAdvance.toFixed(2)}</strong> {t("cart.min_advance_note")}
                     </div>
                     <button className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }}

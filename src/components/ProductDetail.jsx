@@ -31,7 +31,7 @@ export default function ProductDetail() {
             .finally(() => setLoading(false));
     }, [id]);
 
-    if (loading) return <div style={{ padding: 48, color: "#636e72" }}>{t("products.loading")}</div>;
+    if (loading) return <div style={{ padding: 48, color: "var(--text-muted)" }}>{t("products.loading")}</div>;
     if (!product) return <div className="alert alert-error">{t("products.none_found")}</div>;
 
     const hasVariants = product.variants?.length > 0;
@@ -69,7 +69,7 @@ export default function ProductDetail() {
 
     return (
         <div>
-            <Link to="/products" style={{ color: "#636e72", textDecoration: "none", fontSize: 13, display: "inline-block", marginBottom: 16 }}>
+            <Link to="/products" style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: 13, display: "inline-block", marginBottom: 16 }}>
                 ← {t("product_detail.back")}
             </Link>
 
@@ -98,7 +98,7 @@ export default function ProductDetail() {
                             )}
                         </>
                     ) : (
-                        <div style={{ width: "100%", aspectRatio: "1", background: "#f5f6fa", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 80 }}>
+                        <div style={{ width: "100%", aspectRatio: "1", background: "var(--surface-2)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 80 }}>
                             📦
                         </div>
                     )}
@@ -182,7 +182,7 @@ export default function ProductDetail() {
                     </div>
 
                     {!inStock && (
-                        <p style={{ fontSize: 12, color: "#636e72", marginTop: 12 }}>
+                        <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 12 }}>
                             💡 {t("product_detail.preorder_hint")}
                         </p>
                     )}

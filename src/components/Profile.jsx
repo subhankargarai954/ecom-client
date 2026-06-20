@@ -39,7 +39,7 @@ export default function Profile() {
         navigate("/login");
     };
 
-    if (!user) return <div style={{ padding: 48, color: "#636e72" }}>{t("profile.loading")}</div>;
+    if (!user) return <div style={{ padding: 48, color: "var(--text-muted)" }}>{t("profile.loading")}</div>;
 
     return (
         <div style={{ maxWidth: 520, margin: "0 auto" }}>
@@ -52,7 +52,7 @@ export default function Profile() {
 
             <div className="card">
                 <h2>{t("profile.account_details")}</h2>
-                <div style={{ marginBottom: 16, padding: "10px 14px", background: "#f5f6fa", borderRadius: 8, fontSize: 13, color: "#636e72" }}>
+                <div style={{ marginBottom: 16, padding: "10px 14px", background: "var(--surface-2)", borderRadius: 8, fontSize: 13, color: "var(--text-muted)" }}>
                     📞 {t("profile.phone_note", { phone: user.phone })}
                 </div>
                 <form onSubmit={saveProfile}>
@@ -76,7 +76,7 @@ export default function Profile() {
 
             <div className="card">
                 <h2>{t("profile.member_since")}</h2>
-                <p style={{ fontSize: 14, color: "#636e72" }}>
+                <p style={{ fontSize: 14, color: "var(--text-muted)" }}>
                     {new Date(user.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
                 </p>
             </div>

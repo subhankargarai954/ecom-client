@@ -47,7 +47,7 @@ export default function OrderDetail() {
         } finally { setCancelling(false); }
     };
 
-    if (loading) return <div style={{ padding: 48, color: "#636e72" }}>{t("profile.loading")}</div>;
+    if (loading) return <div style={{ padding: 48, color: "var(--text-muted)" }}>{t("profile.loading")}</div>;
     if (!order) return <div className="alert alert-error">{t("orders.none")}</div>;
 
     const stepIdx = STEPS.indexOf(order.order_status);
@@ -57,7 +57,7 @@ export default function OrderDetail() {
 
     return (
         <div>
-            <Link to="/orders" style={{ color: "#636e72", textDecoration: "none", fontSize: 13, display: "inline-block", marginBottom: 16 }}>
+            <Link to="/orders" style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: 13, display: "inline-block", marginBottom: 16 }}>
                 ← {t("order_detail.back")}
             </Link>
 
@@ -71,9 +71,9 @@ export default function OrderDetail() {
             {message && <div className="alert alert-success">{message}</div>}
 
             {justPlaced && orderData && (
-                <div className="card" style={{ background: "#e8f5e9", border: "1px solid #c8e6c9" }}>
-                    <h2 style={{ color: "#2e7d32" }}>🎉 {t("order_detail.confirmed_title")}</h2>
-                    <p style={{ fontSize: 14, color: "#388e3c" }}>
+                <div className="card" style={{ background: "var(--alert-success-bg)", border: "1px solid var(--border)" }}>
+                    <h2 style={{ color: "var(--alert-success-text)" }}>🎉 {t("order_detail.confirmed_title")}</h2>
+                    <p style={{ fontSize: 14, color: "var(--alert-success-text)" }}>
                         {orderData.all_items_available
                             ? t("order_detail.ready_today_msg")
                             : t("order_detail.preorder_msg", { date: orderData.delivery_date })}
@@ -90,21 +90,21 @@ export default function OrderDetail() {
                                 {i < STEPS.length - 1 && (
                                     <div style={{
                                         position: "absolute", top: 16, left: "50%", right: "-50%",
-                                        height: 2, background: i < stepIdx ? "#00b894" : "#dfe6e9", zIndex: 0,
+                                        height: 2, background: i < stepIdx ? "var(--ok)" : "var(--border)", zIndex: 0,
                                     }} />
                                 )}
                                 <div style={{
                                     width: 32, height: 32, borderRadius: "50%",
-                                    background: i < stepIdx ? "#00b894" : i === stepIdx ? "#0984e3" : "#dfe6e9",
-                                    color: i <= stepIdx ? "#fff" : "#636e72",
+                                    background: i < stepIdx ? "var(--ok)" : i === stepIdx ? "var(--accent)" : "var(--border)",
+                                    color: i <= stepIdx ? "#fff" : "var(--text-muted)",
                                     display: "flex", alignItems: "center", justifyContent: "center",
                                     margin: "0 auto 8px", position: "relative", zIndex: 1,
                                     fontWeight: 700, fontSize: 14, border: "2px solid",
-                                    borderColor: i < stepIdx ? "#00b894" : i === stepIdx ? "#0984e3" : "#dfe6e9",
+                                    borderColor: i < stepIdx ? "var(--ok)" : i === stepIdx ? "var(--accent)" : "var(--border)",
                                 }}>
                                     {i < stepIdx ? "✓" : i + 1}
                                 </div>
-                                <div style={{ fontSize: 11, color: i === stepIdx ? "#0984e3" : i < stepIdx ? "#00b894" : "#636e72", fontWeight: i === stepIdx ? 700 : 400 }}>
+                                <div style={{ fontSize: 11, color: i === stepIdx ? "var(--accent)" : i < stepIdx ? "var(--ok)" : "var(--text-muted)", fontWeight: i === stepIdx ? 700 : 400 }}>
                                     {STEP_LABELS[i]}
                                 </div>
                             </div>
@@ -133,26 +133,26 @@ export default function OrderDetail() {
                     <table style={{ width: "100%", fontSize: 14 }}>
                         <tbody>
                             <tr>
-                                <td style={{ color: "#636e72", padding: "4px 0" }}>{t("order_detail.all_available")}</td>
+                                <td style={{ color: "var(--text-muted)", padding: "4px 0" }}>{t("order_detail.all_available")}</td>
                                 <td style={{ textAlign: "right", fontWeight: 600 }}>
                                     {order.all_items_available ? `${t("order_detail.yes")} ✓` : t("order_detail.no_preorder")}
                                 </td>
                             </tr>
                             {order.tentative_delivery_date && (
                                 <tr>
-                                    <td style={{ color: "#636e72", padding: "4px 0" }}>{t("order_detail.tentative_date")}</td>
-                                    <td style={{ textAlign: "right", color: "#f57f17" }}>~{fmt(order.tentative_delivery_date)}</td>
+                                    <td style={{ color: "var(--text-muted)", padding: "4px 0" }}>{t("order_detail.tentative_date")}</td>
+                                    <td style={{ textAlign: "right", color: "var(--alert-warning-text)" }}>~{fmt(order.tentative_delivery_date)}</td>
                                 </tr>
                             )}
                             {order.final_delivery_date && (
                                 <tr>
-                                    <td style={{ color: "#636e72", padding: "4px 0" }}>{t("order_detail.final_pickup_date")}</td>
-                                    <td style={{ textAlign: "right", fontWeight: 700, color: "#00b894" }}>{fmt(order.final_delivery_date)}</td>
+                                    <td style={{ color: "var(--text-muted)", padding: "4px 0" }}>{t("order_detail.final_pickup_date")}</td>
+                                    <td style={{ textAlign: "right", fontWeight: 700, color: "var(--ok)" }}>{fmt(order.final_delivery_date)}</td>
                                 </tr>
                             )}
                             {order.actual_delivery_date && (
                                 <tr>
-                                    <td style={{ color: "#636e72", padding: "4px 0" }}>{t("order_detail.collected_on")}</td>
+                                    <td style={{ color: "var(--text-muted)", padding: "4px 0" }}>{t("order_detail.collected_on")}</td>
                                     <td style={{ textAlign: "right", fontWeight: 600 }}>{new Date(order.actual_delivery_date).toLocaleDateString("en-IN")}</td>
                                 </tr>
                             )}
@@ -175,14 +175,14 @@ export default function OrderDetail() {
                     <h2>{t("order_detail.payment")}</h2>
                     <table style={{ width: "100%", fontSize: 14 }}>
                         <tbody>
-                            <tr><td style={{ color: "#636e72", padding: "4px 0" }}>{t("order_detail.total")}</td><td style={{ textAlign: "right", fontWeight: 700 }}>₹{parseFloat(order.total_amount).toFixed(2)}</td></tr>
-                            <tr><td style={{ color: "#636e72", padding: "4px 0" }}>{t("order_detail.advance_paid")}</td><td style={{ textAlign: "right", color: "#00b894", fontWeight: 600 }}>₹{parseFloat(order.advance_paid).toFixed(2)}</td></tr>
+                            <tr><td style={{ color: "var(--text-muted)", padding: "4px 0" }}>{t("order_detail.total")}</td><td style={{ textAlign: "right", fontWeight: 700 }}>₹{parseFloat(order.total_amount).toFixed(2)}</td></tr>
+                            <tr><td style={{ color: "var(--text-muted)", padding: "4px 0" }}>{t("order_detail.advance_paid")}</td><td style={{ textAlign: "right", color: "var(--ok)", fontWeight: 600 }}>₹{parseFloat(order.advance_paid).toFixed(2)}</td></tr>
                             {parseFloat(order.final_paid) > 0 && (
-                                <tr><td style={{ color: "#636e72", padding: "4px 0" }}>{t("order_detail.paid_at_pickup")}</td><td style={{ textAlign: "right", color: "#00b894", fontWeight: 600 }}>₹{parseFloat(order.final_paid).toFixed(2)}</td></tr>
+                                <tr><td style={{ color: "var(--text-muted)", padding: "4px 0" }}>{t("order_detail.paid_at_pickup")}</td><td style={{ textAlign: "right", color: "var(--ok)", fontWeight: 600 }}>₹{parseFloat(order.final_paid).toFixed(2)}</td></tr>
                             )}
-                            <tr style={{ borderTop: "1px solid #f5f6fa" }}>
+                            <tr style={{ borderTop: "1px solid var(--border)" }}>
                                 <td style={{ padding: "8px 0 4px", fontWeight: 700 }}>{t("order_detail.balance_due")}</td>
-                                <td style={{ textAlign: "right", fontWeight: 700, color: pending_amount > 0 ? "#e17055" : "#00b894" }}>
+                                <td style={{ textAlign: "right", fontWeight: 700, color: pending_amount > 0 ? "var(--warn)" : "var(--ok)" }}>
                                     ₹{pending_amount.toFixed(2)}
                                 </td>
                             </tr>
@@ -198,16 +198,16 @@ export default function OrderDetail() {
                     const effective = parseFloat(item.unit_price) * (1 - parseFloat(item.discount_percent || 0) / 100);
                     const cover = item.product?.images?.find((i) => i.is_cover) || item.product?.images?.[0];
                     return (
-                        <div key={item.id} style={{ display: "flex", gap: 12, alignItems: "center", padding: "12px 0", borderBottom: "1px solid #f5f6fa" }}>
+                        <div key={item.id} style={{ display: "flex", gap: 12, alignItems: "center", padding: "12px 0", borderBottom: "1px solid var(--border)" }}>
                             {cover ? (
                                 <img src={cover.image_url} alt="" style={{ width: 60, height: 60, borderRadius: 8, objectFit: "cover" }} />
                             ) : (
-                                <div style={{ width: 60, height: 60, borderRadius: 8, background: "#f5f6fa", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>📦</div>
+                                <div style={{ width: 60, height: 60, borderRadius: 8, background: "var(--surface-2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>📦</div>
                             )}
                             <div style={{ flex: 1 }}>
                                 <div style={{ fontWeight: 600 }}>{localized(item.product, "name", i18n.language)}</div>
-                                {item.variant && <div style={{ fontSize: 12, color: "#636e72" }}>{item.variant.variant_name}</div>}
-                                <div style={{ fontSize: 13, color: "#636e72" }}>₹{effective.toFixed(2)} × {item.quantity}</div>
+                                {item.variant && <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{item.variant.variant_name}</div>}
+                                <div style={{ fontSize: 13, color: "var(--text-muted)" }}>₹{effective.toFixed(2)} × {item.quantity}</div>
                                 {!item.was_available_at_order && <span className="badge badge-pending" style={{ fontSize: 10 }}>{t("order_detail.preorder")}</span>}
                             </div>
                             <div style={{ fontWeight: 700 }}>₹{(effective * item.quantity).toFixed(2)}</div>
@@ -225,7 +225,7 @@ export default function OrderDetail() {
                         </button>
                     ) : (
                         <div className="card" style={{ textAlign: "left" }}>
-                            <h2 style={{ color: "#d63031" }}>{t("order_detail.cancel_confirm")}</h2>
+                            <h2 style={{ color: "var(--bad)" }}>{t("order_detail.cancel_confirm")}</h2>
                             <div className="alert alert-error">
                                 {t("order_detail.cancel_refund_note", { amount: `₹${parseFloat(order.advance_paid).toFixed(2)}` })}
                             </div>
