@@ -1,75 +1,44 @@
-// App.jsx
-
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-import Home from "./components/Home";
-import NavigationBar from "./components/NavigationBar";
-import Category from "./components/Categories";
-import Products from "./components/Products";
-import Product from "./components/Product";
-import Profile from "./components/Profile";
-import Signup from "./components/Signup";
-import Logout from "./components/Logout";
-import Footer from "./components/Footer";
-import Login from "./components/Login";
-import Cart from "./components/Cart";
-
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import "./App.css";
 
-import { useAuth } from "./context/AuthContext";
-import { UrlHistoryProvider } from "./context/UrlHistoryContext";
+import Navbar from "./components/Navbar";
+import Home from "./components/Home";
+import Login from "./components/Login";
+import Signup from "./components/Signup";
+import Products from "./components/Products";
+import ProductDetail from "./components/ProductDetail";
+import Cart from "./components/Cart";
+import Checkout from "./components/Checkout";
+import MyOrders from "./components/MyOrders";
+import OrderDetail from "./components/OrderDetail";
+import Invoice from "./components/Invoice";
+import Profile from "./components/Profile";
+
+function PrivateRoute({ children }) {
+    const token = localStorage.getItem("customerToken");
+    return token ? children : <Navigate to="/login" replace />;
+}
 
 function App() {
-    const { userLogged } = useAuth();
-
     return (
         <BrowserRouter>
-            <UrlHistoryProvider>
-                <div className="App">
-                    {userLogged ? (
-                        <NavigationBar
-                            list1={["Home", "Category"]}
-                            list2={["Cart", "Profile", "Logout"]}
-                        />
-                    ) : (
-                        <NavigationBar
-                            list1={["Home", "Category"]}
-                            list2={["Login", "Signup", "Admin"]}
-                        />
-                    )}
-                    <Routes>
-                        <Route path="/" exact element={<Home />} />
-                        <Route path="/Home" exact element={<Home />} />
-                        <Route path="/Category" exact element={<Category />} />
-                        <Route
-                            path="/Cart"
-                            exact
-                            element={userLogged ? <Cart /> : <Login />}
-                        />
-                        <Route
-                            path="/products/:id"
-                            exact
-                            element={<Products />}
-                        />
-                        <Route
-                            path="/product/:id"
-                            exact
-                            element={<Product />}
-                        />
-                        <Route path="/Signup" exact element={<Signup />} />
-                        <Route path="/Login" exact element={<Login />} />
-                        <Route
-                            path="/Profile"
-                            exact
-                            element={userLogged ? <Profile /> : <Login />}
-                        />
-                        <Route path="/Logout" exact element={<Logout />} />
-                    </Routes>
-
-                    <Footer />
-                </div>
-            </UrlHistoryProvider>
+            <Navbar />
+            <div className="page-container">
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<Signup />} />
+                    <Route path="/products" element={<Products />} />
+                    <Route path="/products/:id" element={<ProductDetail />} />
+                    <Route path="/cart" element={<PrivateRoute><Cart /></PrivateRoute>} />
+                    <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />
+                    <Route path="/orders" element={<PrivateRoute><MyOrders /></PrivateRoute>} />
+                    <Route path="/orders/:id" element={<PrivateRoute><OrderDetail /></PrivateRoute>} />
+                    <Route path="/invoice/:id" element={<PrivateRoute><Invoice /></PrivateRoute>} />
+                    <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+                </Routes>
+            </div>
         </BrowserRouter>
     );
 }
