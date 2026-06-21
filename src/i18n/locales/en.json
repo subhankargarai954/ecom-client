@@ -120,6 +120,7 @@
         "items_count": "{{count}} item(s)",
         "total": "Total",
         "advance": "Advance",
+        "advance_to_pay": "Advance (to pay)",
         "due_at_pickup": "Due at pickup",
         "ready_since": "Ready since {{date}}",
         "tentative": "Tentative: {{date}}",
@@ -134,8 +135,35 @@
         "delivered": "Delivered",
         "cancelled": "Cancelled"
     },
+    "timeline": {
+        "placed": "Order Placed",
+        "confirmed": "Confirmed",
+        "in_production": "In Production",
+        "ready_for_pickup": "Ready for Pickup",
+        "delivered": "Delivered",
+        "fully_paid": "Fully Paid"
+    },
+    "cust_notif": {
+        "title": "Notifications",
+        "none": "No notifications yet",
+        "mark_all": "Mark all read"
+    },
+    "notif_types": {
+        "advance_confirmed": "Order confirmed",
+        "in_production": "Order in production",
+        "ready": "Ready for pickup",
+        "delivered": "Order delivered",
+        "cancelled": "Order cancelled",
+        "payment_received": "Payment received",
+        "refunded": "Refund issued",
+        "due_rejected": "Cash request declined"
+    },
     "pay": {
         "pay_balance_online": "Pay Balance Online",
+        "pay_due_online": "Pay Due Online",
+        "request_cash": "Request to Pay in Cash",
+        "cash_request_sent": "Cash payment requested. The store will confirm once received.",
+        "cash_requested": "Cash payment of {{amount}} requested — awaiting store confirmation.",
         "complete_payment": "Complete Payment",
         "balance_paid": "Balance paid. Thank you!",
         "view_invoice": "View / Download Invoice",
@@ -169,6 +197,7 @@
         "payment": "Payment",
         "total": "Total",
         "advance_paid": "Advance Paid",
+        "advance_to_pay": "Advance (to pay)",
         "paid_at_pickup": "Paid at Pickup",
         "balance_due": "Balance Due",
         "items_in_order": "Items in this Order",

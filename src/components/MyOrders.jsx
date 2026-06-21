@@ -41,6 +41,10 @@ export default function MyOrders() {
                 const pending_amount = Math.max(0,
                     parseFloat(order.total_amount) - parseFloat(order.advance_paid) - parseFloat(order.final_paid || 0)
                 );
+                const pendingAdvance = (order.payments || []).find(
+                    (p) => p.payment_type === "advance" && p.status === "pending"
+                );
+                const advanceConfirmed = parseFloat(order.advance_paid) > 0;
                 return (
                     <Link to={`/orders/${order.id}`} key={order.id} className="order-card">
                         <div className="order-card-header">
@@ -64,7 +68,13 @@ export default function MyOrders() {
                                 {t("orders.items_count", { count: order.items?.length || 0 })}
                             </span>
                             <span>{t("orders.total")}: <strong style={{ color: "var(--text)" }}>₹{parseFloat(order.total_amount).toFixed(2)}</strong></span>
-                            <span>{t("orders.advance")}: <strong style={{ color: "var(--ok)" }}>₹{parseFloat(order.advance_paid).toFixed(2)}</strong></span>
+                            {advanceConfirmed ? (
+                                <span>{t("orders.advance")}: <strong style={{ color: "var(--ok)" }}>₹{parseFloat(order.advance_paid).toFixed(2)}</strong></span>
+                            ) : pendingAdvance ? (
+                                <span>{t("orders.advance_to_pay")}: <strong style={{ color: "var(--warn)" }}>₹{parseFloat(pendingAdvance.amount).toFixed(2)}</strong></span>
+                            ) : (
+                                <span>{t("orders.advance")}: <strong style={{ color: "var(--ok)" }}>₹0.00</strong></span>
+                            )}
                             {pending_amount > 0 && (
                                 <span>{t("orders.due_at_pickup")}: <strong style={{ color: "var(--warn)" }}>₹{pending_amount.toFixed(2)}</strong></span>
                             )}

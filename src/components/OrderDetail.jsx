@@ -89,6 +89,18 @@ export default function OrderDetail() {
         } finally { setPaying(false); }
     };
 
+    // Request to pay the balance in cash → needs admin confirmation.
+    const requestCash = async () => {
+        setPaying(true);
+        try {
+            await api.post(`/api/orders/${id}/pay-final/cash`);
+            setMessage("💵 " + t("pay.cash_request_sent"));
+            await reload();
+        } catch (err) {
+            alert(err.response?.data?.error || "Could not request cash payment.");
+        } finally { setPaying(false); }
+    };
+
     const downloadInvoice = async () => {
         try {
             const res = await api.get(`/api/orders/${id}/invoice.pdf`, { responseType: "blob" });
@@ -102,16 +114,29 @@ export default function OrderDetail() {
     if (loading) return <div style={{ padding: 48, color: "var(--text-muted)" }}>{t("profile.loading")}</div>;
     if (!order) return <div className="alert alert-error">{t("orders.none")}</div>;
 
-    // Timeline adapts: made-to-order shows a production step, in-stock skips it.
-    const STEPS = order.is_made_to_order
-        ? ["confirmed", "in_production", "ready_for_pickup", "delivered"]
-        : ["confirmed", "ready_for_pickup", "delivered"];
-    const stepIdx = STEPS.indexOf(order.order_status);
+    // Full lifecycle timeline: Placed → Confirmed → [In Production] → Ready →
+    // Delivered → Fully Paid. Completed steps are green; the first incomplete
+    // step is the current one. A delivered-with-due order shows Delivered done
+    // and Fully Paid as the pending step.
+    const { steps: tlSteps } = buildTimeline(order);
     const preConfirm = ["awaiting_payment", "pending"].includes(order.order_status);
     const pending_amount = Math.max(0,
         parseFloat(order.total_amount) - parseFloat(order.advance_paid) - parseFloat(order.final_paid || 0)
     );
-    const canPayBalance = pending_amount > 0 && ["confirmed", "in_production", "ready_for_pickup"].includes(order.order_status);
+    // Customer can clear the balance online any time after confirmation, including
+    // a pending due after delivery. Online payments are auto-confirmed (no admin
+    // approval); cash dues are collected & approved by the admin.
+    const canPayBalance = pending_amount > 0 && ["confirmed", "in_production", "ready_for_pickup", "delivered"].includes(order.order_status);
+    // A cash due request already raised and awaiting admin confirmation.
+    const cashRequested = (order.payments || []).find(
+        (p) => p.payment_type === "final" && p.status === "pending" && p.method === "cash"
+    );
+    const canPayOnline = pending_amount >= 1; // gateway minimum is ₹1
+    // Advance committed but not yet confirmed (cash awaiting admin / online awaiting pay).
+    const pendingAdvance = (order.payments || []).find(
+        (p) => p.payment_type === "advance" && p.status === "pending"
+    );
+    const advanceConfirmed = parseFloat(order.advance_paid) > 0;
 
     return (
         <div>
@@ -142,34 +167,38 @@ export default function OrderDetail() {
                 </div>
             )}
 
-            {/* Timeline */}
-            {!preConfirm && order.order_status !== "cancelled" && (
+            {/* Timeline — full lifecycle; completed steps are green */}
+            {order.order_status !== "cancelled" && (
                 <div className="card">
                     <div style={{ display: "flex", gap: 0 }}>
-                        {STEPS.map((s, i) => (
-                            <div key={s} style={{ flex: 1, textAlign: "center", position: "relative" }}>
-                                {i < STEPS.length - 1 && (
+                        {tlSteps.map((st, i) => {
+                            const done = st.done;
+                            const active = st.active;
+                            return (
+                                <div key={st.key} style={{ flex: 1, textAlign: "center", position: "relative" }}>
+                                    {i < tlSteps.length - 1 && (
+                                        <div style={{
+                                            position: "absolute", top: 16, left: "50%", right: "-50%",
+                                            height: 2, background: done ? "var(--ok)" : "var(--border)", zIndex: 0,
+                                        }} />
+                                    )}
                                     <div style={{
-                                        position: "absolute", top: 16, left: "50%", right: "-50%",
-                                        height: 2, background: i < stepIdx ? "var(--ok)" : "var(--border)", zIndex: 0,
-                                    }} />
-                                )}
-                                <div style={{
-                                    width: 32, height: 32, borderRadius: "50%",
-                                    background: i < stepIdx ? "var(--ok)" : i === stepIdx ? "var(--accent)" : "var(--border)",
-                                    color: i <= stepIdx ? "#fff" : "var(--text-muted)",
-                                    display: "flex", alignItems: "center", justifyContent: "center",
-                                    margin: "0 auto 8px", position: "relative", zIndex: 1,
-                                    fontWeight: 700, fontSize: 14, border: "2px solid",
-                                    borderColor: i < stepIdx ? "var(--ok)" : i === stepIdx ? "var(--accent)" : "var(--border)",
-                                }}>
-                                    {i < stepIdx ? "✓" : i + 1}
+                                        width: 32, height: 32, borderRadius: "50%",
+                                        background: done ? "var(--ok)" : active ? "var(--accent)" : "var(--border)",
+                                        color: done || active ? "#fff" : "var(--text-muted)",
+                                        display: "flex", alignItems: "center", justifyContent: "center",
+                                        margin: "0 auto 8px", position: "relative", zIndex: 1,
+                                        fontWeight: 700, fontSize: 14, border: "2px solid",
+                                        borderColor: done ? "var(--ok)" : active ? "var(--accent)" : "var(--border)",
+                                    }}>
+                                        {done ? "✓" : i + 1}
+                                    </div>
+                                    <div style={{ fontSize: 11, color: active ? "var(--accent)" : done ? "var(--ok)" : "var(--text-muted)", fontWeight: active ? 700 : 400 }}>
+                                        {t(`timeline.${st.key}`)}
+                                    </div>
                                 </div>
-                                <div style={{ fontSize: 11, color: i === stepIdx ? "var(--accent)" : i < stepIdx ? "var(--ok)" : "var(--text-muted)", fontWeight: i === stepIdx ? 700 : 400 }}>
-                                    {t(`order_status.${s}`)}
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             )}
@@ -177,11 +206,22 @@ export default function OrderDetail() {
             {/* Payment & invoice actions */}
             {(canPayBalance || order.order_status === "delivered") && (
                 <div className="card" style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-                    {canPayBalance && (
-                        <button className="btn btn-primary" onClick={payBalance} disabled={paying}>
-                            {paying ? "…" : "📲 " + t("pay.pay_balance_online") + ` (₹${pending_amount.toFixed(2)})`}
-                        </button>
-                    )}
+                    {canPayBalance && (cashRequested ? (
+                        <div className="alert alert-warning" style={{ margin: 0, flex: "1 1 100%" }}>
+                            💵 {t("pay.cash_requested", { amount: `₹${pending_amount.toFixed(2)}` })}
+                        </div>
+                    ) : (
+                        <>
+                            {canPayOnline && (
+                                <button className="btn btn-primary" onClick={payBalance} disabled={paying}>
+                                    {paying ? "…" : "📲 " + (order.order_status === "delivered" ? t("pay.pay_due_online") : t("pay.pay_balance_online")) + ` (₹${pending_amount.toFixed(2)})`}
+                                </button>
+                            )}
+                            <button className="btn btn-outline" onClick={requestCash} disabled={paying}>
+                                💵 {t("pay.request_cash")} (₹{pending_amount.toFixed(2)})
+                            </button>
+                        </>
+                    ))}
                     {order.order_status === "delivered" && (
                         <>
                             <Link to={`/invoice/${order.id}`} className="btn btn-outline">🧾 {t("pay.view_invoice")}</Link>
@@ -254,7 +294,13 @@ export default function OrderDetail() {
                     <table style={{ width: "100%", fontSize: 14 }}>
                         <tbody>
                             <tr><td style={{ color: "var(--text-muted)", padding: "4px 0" }}>{t("order_detail.total")}</td><td style={{ textAlign: "right", fontWeight: 700 }}>₹{parseFloat(order.total_amount).toFixed(2)}</td></tr>
-                            <tr><td style={{ color: "var(--text-muted)", padding: "4px 0" }}>{t("order_detail.advance_paid")}</td><td style={{ textAlign: "right", color: "var(--ok)", fontWeight: 600 }}>₹{parseFloat(order.advance_paid).toFixed(2)}</td></tr>
+                            {advanceConfirmed ? (
+                                <tr><td style={{ color: "var(--text-muted)", padding: "4px 0" }}>{t("order_detail.advance_paid")}</td><td style={{ textAlign: "right", color: "var(--ok)", fontWeight: 600 }}>₹{parseFloat(order.advance_paid).toFixed(2)}</td></tr>
+                            ) : pendingAdvance ? (
+                                <tr><td style={{ color: "var(--warn)", padding: "4px 0" }}>{t("order_detail.advance_to_pay")}</td><td style={{ textAlign: "right", color: "var(--warn)", fontWeight: 700 }}>₹{parseFloat(pendingAdvance.amount).toFixed(2)}</td></tr>
+                            ) : (
+                                <tr><td style={{ color: "var(--text-muted)", padding: "4px 0" }}>{t("order_detail.advance_paid")}</td><td style={{ textAlign: "right", color: "var(--text-muted)", fontWeight: 600 }}>₹0.00</td></tr>
+                            )}
                             {parseFloat(order.final_paid) > 0 && (
                                 <tr><td style={{ color: "var(--text-muted)", padding: "4px 0" }}>{t("order_detail.paid_at_pickup")}</td><td style={{ textAlign: "right", color: "var(--ok)", fontWeight: 600 }}>₹{parseFloat(order.final_paid).toFixed(2)}</td></tr>
                             )}
@@ -327,3 +373,23 @@ export default function OrderDetail() {
 }
 
 function fmt(d) { return d ? new Date(d).toLocaleDateString("en-IN") : "—"; }
+
+// Full order lifecycle for the timeline. The step matching the CURRENT status is
+// `active` (amber); steps the order has moved PAST are `done` (green ✓); later
+// steps are pending (grey). "delivered" is done on handover; the final
+// "fully_paid" step is active while a balance remains.
+function buildTimeline(order) {
+    const balance = parseFloat(order.total_amount) - parseFloat(order.advance_paid) - parseFloat(order.final_paid || 0);
+    const s = order.order_status;
+    const keys = ["placed", "confirmed", ...(order.is_made_to_order ? ["in_production"] : []), "ready_for_pickup", "delivered", "fully_paid"];
+    let activeKey;
+    if (s === "awaiting_payment" || s === "pending") activeKey = "placed";
+    else if (s === "confirmed") activeKey = "confirmed";
+    else if (s === "in_production") activeKey = "in_production";
+    else if (s === "ready_for_pickup") activeKey = "ready_for_pickup";
+    else if (s === "delivered") activeKey = balance > 0.01 ? "fully_paid" : null; // null = fully complete
+    else activeKey = "placed";
+    const activeIndex = activeKey ? keys.indexOf(activeKey) : keys.length;
+    const steps = keys.map((key, i) => ({ key, done: i < activeIndex, active: i === activeIndex }));
+    return { steps };
+}

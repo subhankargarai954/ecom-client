@@ -120,6 +120,7 @@
         "items_count": "{{count}}টি পণ্য",
         "total": "মোট",
         "advance": "অগ্রিম",
+        "advance_to_pay": "অগ্রিম (প্রদেয়)",
         "due_at_pickup": "সংগ্রহের সময় বাকি",
         "ready_since": "{{date}} থেকে প্রস্তুত",
         "tentative": "সম্ভাব্য: {{date}}",
@@ -134,8 +135,35 @@
         "delivered": "ডেলিভারি সম্পন্ন",
         "cancelled": "বাতিল"
     },
+    "timeline": {
+        "placed": "অর্ডার করা হয়েছে",
+        "confirmed": "নিশ্চিত",
+        "in_production": "তৈরি হচ্ছে",
+        "ready_for_pickup": "পিকআপের জন্য প্রস্তুত",
+        "delivered": "ডেলিভারি হয়েছে",
+        "fully_paid": "সম্পূর্ণ পরিশোধিত"
+    },
+    "cust_notif": {
+        "title": "নোটিফিকেশন",
+        "none": "এখনও কোনো নোটিফিকেশন নেই",
+        "mark_all": "সব পঠিত চিহ্নিত করুন"
+    },
+    "notif_types": {
+        "advance_confirmed": "অর্ডার নিশ্চিত",
+        "in_production": "অর্ডার তৈরি হচ্ছে",
+        "ready": "পিকআপের জন্য প্রস্তুত",
+        "delivered": "অর্ডার ডেলিভারি হয়েছে",
+        "cancelled": "অর্ডার বাতিল",
+        "payment_received": "পেমেন্ট পাওয়া গেছে",
+        "refunded": "রিফান্ড ইস্যু করা হয়েছে",
+        "due_rejected": "নগদ অনুরোধ প্রত্যাখ্যাত"
+    },
     "pay": {
         "pay_balance_online": "বাকি অনলাইনে দিন",
+        "pay_due_online": "বকেয়া অনলাইনে দিন",
+        "request_cash": "নগদে পরিশোধের অনুরোধ করুন",
+        "cash_request_sent": "নগদ পেমেন্টের অনুরোধ পাঠানো হয়েছে। দোকান প্রাপ্তির পর নিশ্চিত করবে।",
+        "cash_requested": "{{amount}} নগদ পেমেন্টের অনুরোধ করা হয়েছে — দোকানের নিশ্চিতকরণের অপেক্ষায়।",
         "complete_payment": "পেমেন্ট সম্পূর্ণ করুন",
         "balance_paid": "বাকি পরিশোধ হয়েছে। ধন্যবাদ!",
         "view_invoice": "ইনভয়েস দেখুন / ডাউনলোড করুন",
@@ -169,6 +197,7 @@
         "payment": "পেমেন্ট",
         "total": "মোট",
         "advance_paid": "অগ্রিম পরিশোধিত",
+        "advance_to_pay": "অগ্রিম (প্রদেয়)",
         "paid_at_pickup": "সংগ্রহের সময় পরিশোধিত",
         "balance_due": "বাকি পরিমাণ",
         "items_in_order": "এই অর্ডারের পণ্যসমূহ",

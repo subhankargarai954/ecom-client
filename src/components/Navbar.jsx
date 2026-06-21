@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import api from "../api";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggle from "./ThemeToggle";
+import NotificationBell from "./NotificationBell";
 
 export default function Navbar() {
     const navigate = useNavigate();
@@ -38,6 +39,7 @@ export default function Navbar() {
                     <LanguageSwitcher />
                     {user ? (
                         <>
+                            <NotificationBell />
                             <Link to="/cart" className="cart-icon">
                                 🛒{cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
                             </Link>
